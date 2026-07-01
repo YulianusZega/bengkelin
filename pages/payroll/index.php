@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
 requireLogin();
-requireRole('owner', 'admin');
+requireRole('owner');
 
 $title      = 'Penggajian';
 $activePage = 'payroll';

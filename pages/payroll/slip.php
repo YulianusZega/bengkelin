@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
 requireLogin();
-requireRole('owner', 'admin');
+requireRole('owner');
 
 $startDate = $_GET['start_date'] ?? date('Y-m-01');
 $endDate   = $_GET['end_date']   ?? date('Y-m-t');

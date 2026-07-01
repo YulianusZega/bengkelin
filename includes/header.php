@@ -16,7 +16,7 @@ $navItems = [
     'services'     => ['icon' => 'fa-tools',          'label' => 'Layanan',        'href' => BASE_URL . '/pages/services/index.php',       'roles' => ['owner','admin','senior_teknisi']],
     'employees'    => ['icon' => 'fa-user-tie',        'label' => 'Karyawan',       'href' => BASE_URL . '/pages/employees/index.php',      'roles' => ['owner','admin']],
     'reports'      => ['icon' => 'fa-chart-bar',       'label' => 'Laporan',        'href' => BASE_URL . '/pages/reports/index.php',        'roles' => ['owner','admin']],
-    'payroll'      => ['icon' => 'fa-money-check-alt',  'label' => 'Penggajian',     'href' => BASE_URL . '/pages/payroll/index.php',         'roles' => ['owner','admin']],
+    'payroll'      => ['icon' => 'fa-money-check-alt',  'label' => 'Penggajian',     'href' => BASE_URL . '/pages/payroll/index.php',         'roles' => ['owner']],
     'settings'     => ['icon' => 'fa-cog',             'label' => 'Pengaturan',     'href' => BASE_URL . '/pages/settings/index.php',       'roles' => ['owner']],
 ];
 
