@@ -41,7 +41,7 @@ function navBadge(string $page, int $pendingWo, int $pendingBooking): string {
   <title><?= htmlspecialchars($title ?? 'Dashboard') ?> — Bengkelin</title>
   <meta name="description" content="Bengkelin — Sistem Manajemen Bengkel Otomotif SMKS Pembda Nias, Program Teaching Factory (Tefa)">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=2.0">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=<?= time() ?>">
   <?php if (!empty($extraCss)): foreach ($extraCss as $css): ?>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/<?= $css ?>">
   <?php endforeach; endif; ?>
