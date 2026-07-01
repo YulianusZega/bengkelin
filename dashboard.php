@@ -109,7 +109,7 @@ include __DIR__ . '/includes/header.php';
 
 <!-- ── STAT CARDS ── -->
 <div class="stats-grid">
-  <div class="stat-card">
+  <div class="stat-card glass-effect">
     <div class="stat-icon orange"><i class="fas fa-money-bill-wave"></i></div>
     <div class="stat-info">
       <div class="stat-label">Pendapatan Bulan Ini</div>
@@ -119,7 +119,7 @@ include __DIR__ . '/includes/header.php';
       </div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass-effect">
     <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
     <div class="stat-info">
       <div class="stat-label">Work Order Aktif</div>
@@ -127,7 +127,7 @@ include __DIR__ . '/includes/header.php';
       <div class="stat-change neutral"><i class="fas fa-plus-circle"></i> Hari ini: <?= $todayWo ?> WO baru</div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass-effect">
     <div class="stat-icon green"><i class="fas fa-users"></i></div>
     <div class="stat-info">
       <div class="stat-label">Total Pelanggan</div>
@@ -135,7 +135,7 @@ include __DIR__ . '/includes/header.php';
       <div class="stat-change up"><i class="fas fa-arrow-up"></i> +<?= $newCustomer ?> bulan ini</div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass-effect">
     <div class="stat-icon yellow"><i class="fas fa-calendar-check"></i></div>
     <div class="stat-info">
       <div class="stat-label">Booking Menunggu</div>
@@ -145,7 +145,7 @@ include __DIR__ . '/includes/header.php';
       </div>
     </div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card glass-effect">
     <div class="stat-icon red"><i class="fas fa-boxes"></i></div>
     <div class="stat-info">
       <div class="stat-label">Stok Menipis</div>
