@@ -19,7 +19,9 @@ try {
         'wo_assistants',
         'wo_parts',
         'wo_services',
-        'work_orders'
+        'work_orders',
+        'parts',
+        'part_categories'
     ];
     
     foreach ($tables as $table) {
