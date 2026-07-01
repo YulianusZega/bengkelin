@@ -7,7 +7,15 @@ try {
     // Disable foreign keys
     $db->exec("SET FOREIGN_KEY_CHECKS = 0;");
 
-    // 4. INSERT Data
+    // 1. ALTER TABLES
+    $db->exec("ALTER TABLE users MODIFY COLUMN role ENUM('owner','admin','senior_teknisi','junior_teknisi') DEFAULT 'junior_teknisi'");
+    $db->exec("ALTER TABLE employees MODIFY COLUMN position ENUM('owner','admin','senior_teknisi','junior_teknisi') NOT NULL");
+
+    // 2. UPDATE Configs
+    $db->exec("UPDATE settings SET setting_key = 'senior_share_pct' WHERE setting_key = 'kabeng_share_pct'");
+    $db->exec("UPDATE settings SET setting_key = 'senior_min_guarantee' WHERE setting_key = 'kabeng_min_guarantee'");
+
+    // 3. TRUNCATE & INSERT Data
     $db->exec("TRUNCATE TABLE users;");
     $db->exec("TRUNCATE TABLE employees;");
     $users = [
