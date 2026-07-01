@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Login — Bengkelin | Sistem Manajemen Bengkel</title>
   <meta name="description" content="Login ke Bengkelin — Sistem Manajemen Bengkel Otomotif SMKS Pembda Nias, Program Teaching Factory (Tefa).">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/login.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/login.css?v=<?= time() ?>">
 </head>
 <body>
 
