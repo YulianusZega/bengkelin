@@ -54,7 +54,7 @@ include __DIR__ . '/../../includes/header.php';
     <p>Kelola stok sparepart dan produk bengkel</p>
   </div>
   <div class="page-header-right">
-    <a href="<?= BASE_URL ?>/pages/reports/export.php?type=inventory" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</a>
+    <a href="<?= BASE_URL ?>/pages/reports/export.php?type=inventory" class="btn btn-outline" style="color:#10B981;border-color:#10B981"><i class="fas fa-file-excel"></i> Export Excel</a>
     <a href="<?= BASE_URL ?>/pages/inventory/movements.php" class="btn btn-outline"><i class="fas fa-history"></i> Riwayat Stok</a>
     <button class="btn btn-outline" onclick="App.openModal('modal-adj-stock')"><i class="fas fa-exchange-alt"></i> Sesuaikan Stok</button>
     <button class="btn btn-primary" onclick="App.openModal('modal-add-part')"><i class="fas fa-plus"></i> Tambah Part</button>
@@ -87,21 +87,20 @@ include __DIR__ . '/../../includes/header.php';
     <form method="GET" class="d-flex gap-8 align-center flex-wrap">
       <div class="search-box" style="flex:1;min-width:200px">
         <i class="fas fa-search search-icon"></i>
-        <input type="text" name="search" class="form-control" placeholder="Cari nama, kode, merek..." value="<?= htmlspecialchars($search) ?>">
+        <input type="text" name="search" class="form-control" placeholder="Cari nama, kode, merek..." value="<?= htmlspecialchars($search) ?>" onchange="this.form.submit()">
       </div>
-      <select name="category" class="form-control" style="width:170px">
+      <select name="category" class="form-control" style="width:170px" onchange="this.form.submit()">
         <option value="">Semua Kategori</option>
         <?php foreach ($categories as $cat): ?>
         <option value="<?= $cat['id'] ?>" <?= $catId===$cat['id']?'selected':'' ?>><?= htmlspecialchars($cat['name']) ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="stock" class="form-control" style="width:140px">
+      <select name="stock" class="form-control" style="width:140px" onchange="this.form.submit()">
         <option value="">Semua Stok</option>
         <option value="ok"    <?= $stockFlt==='ok'   ?'selected':'' ?>>Stok Aman</option>
         <option value="low"   <?= $stockFlt==='low'  ?'selected':'' ?>>Stok Menipis</option>
         <option value="empty" <?= $stockFlt==='empty'?'selected':'' ?>>Stok Habis</option>
       </select>
-      <button type="submit" class="btn btn-primary">Filter</button>
       <?php if ($search || $catId || $stockFlt): ?><a href="?" class="btn btn-outline">Reset</a><?php endif; ?>
     </form>
   </div>

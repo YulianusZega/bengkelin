@@ -114,7 +114,7 @@ if ($type === 'mechanic') {
 }
 
 if ($type === 'inventory') {
-    $filename = "Inventori_" . date('dmY') . ".csv";
+    $filename = "Inventori_" . date('dmY') . ".xls";
 
     $rows = $db->query("
         SELECT p.code, p.name, pc.name AS category, p.brand, p.unit,
@@ -124,16 +124,35 @@ if ($type === 'inventory') {
         ORDER BY p.name
     ")->fetchAll();
 
-    header('Content-Type: text/csv; charset=utf-8');
+    header("Content-Type: application/vnd.ms-excel; charset=utf-8");
     header("Content-Disposition: attachment; filename={$filename}");
-    $out = fopen('php://output', 'w');
-    fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
+    header("Pragma: no-cache");
+    header("Expires: 0");
 
-    fputcsv($out, ['Kode','Nama Part','Kategori','Merek','Satuan','Stok','Min Stok','Harga Beli','Harga Jual','Rak','Jenis Kendaraan']);
+    echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+    echo '<head><meta charset="UTF-8"></head><body>';
+    echo '<table border="1">';
+    echo '<tr style="background-color:#FF6B2B;color:white;font-weight:bold;">
+            <th>Kode</th><th>Nama Part</th><th>Kategori</th><th>Merek</th><th>Satuan</th>
+            <th>Stok</th><th>Min Stok</th><th>Harga Beli</th><th>Harga Jual</th><th>Rak</th><th>Kendaraan</th>
+          </tr>';
+    
     foreach ($rows as $r) {
-        fputcsv($out, array_values($r));
+        echo '<tr>';
+        echo '<td>' . htmlspecialchars($r['code']) . '</td>';
+        echo '<td>' . htmlspecialchars($r['name']) . '</td>';
+        echo '<td>' . htmlspecialchars($r['category'] ?? '') . '</td>';
+        echo '<td>' . htmlspecialchars($r['brand'] ?? '') . '</td>';
+        echo '<td>' . htmlspecialchars($r['unit'] ?? '') . '</td>';
+        echo '<td>' . $r['stock'] . '</td>';
+        echo '<td>' . $r['min_stock'] . '</td>';
+        echo '<td>' . $r['buy_price'] . '</td>';
+        echo '<td>' . $r['sell_price'] . '</td>';
+        echo '<td>' . htmlspecialchars($r['shelf_location'] ?? '') . '</td>';
+        echo '<td>' . htmlspecialchars($r['vehicle_type'] ?? '') . '</td>';
+        echo '</tr>';
     }
-    fclose($out);
+    echo '</table></body></html>';
     exit;
 }
 
