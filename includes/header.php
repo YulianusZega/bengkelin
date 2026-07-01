@@ -68,7 +68,10 @@ function navBadge(string $page, int $pendingWo, int $pendingBooking): string {
   <aside class="sidebar" id="app-sidebar">
 
     <a href="<?= BASE_URL ?>/dashboard.php" class="sidebar-brand">
-      <div class="sidebar-brand-icon"><i class="fas fa-wrench"></i></div>
+      <div class="sidebar-brand-icon">
+        <!-- Logo akan ditarik dari assets/icons/logo.png -->
+        <img src="<?= BASE_URL ?>/assets/icons/logo.png" alt="Logo Bengkelin" onerror="this.outerHTML='<i class=\'fas fa-wrench\'></i>'">
+      </div>
       <div class="sidebar-brand-text">
         <strong>Bengkelin</strong>
         <span>SMKS Pembda Nias — Tefa</span>
