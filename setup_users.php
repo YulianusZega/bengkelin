@@ -15,9 +15,13 @@ try {
     $db->exec("UPDATE settings SET setting_key = 'senior_share_pct' WHERE setting_key = 'kabeng_share_pct'");
     $db->exec("UPDATE settings SET setting_key = 'senior_min_guarantee' WHERE setting_key = 'kabeng_min_guarantee'");
 
-    // 3. TRUNCATE & INSERT Data
-    $db->exec("TRUNCATE TABLE users;");
-    $db->exec("TRUNCATE TABLE employees;");
+    // 3. CLEAN UP & INSERT Data (Gunakan DELETE karena TRUNCATE sering diblokir di cPanel)
+    $db->exec("DELETE FROM employees;");
+    $db->exec("DELETE FROM users;");
+    
+    // Reset Auto Increment
+    $db->exec("ALTER TABLE employees AUTO_INCREMENT = 1;");
+    $db->exec("ALTER TABLE users AUTO_INCREMENT = 1;");
     $users = [
         ['name' => 'Yulianus Zega, S.Kom', 'email' => 'yulianus@bengkelin.com', 'role' => 'owner',          'position' => 'owner',          'pass' => 'bengkelin2026'],
         ['name' => 'Ryan Perwira Harefa',  'email' => 'ian@bengkelin.com',      'role' => 'senior_teknisi', 'position' => 'senior_teknisi', 'pass' => 'bengkelin2026'],
