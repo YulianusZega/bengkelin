@@ -12,8 +12,14 @@ define('DB_CHARSET', 'utf8mb4');
 // Auto-detect protocol and host for BASE_URL
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-define('BASE_URL', "$protocol://$host/bengkelin");
 
+// Jika diakses dari komputer lokal (XAMPP), tambahkan folder /bengkelin
+if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+    define('BASE_URL', "$protocol://$host/bengkelin");
+} else {
+// Jika di server live (seperti bengkelin.cloud), tidak perlu folder tambahan
+    define('BASE_URL', "$protocol://$host");
+}
 define('APP_NAME', 'Bengkelin');
 
 function getDB(): PDO {
