@@ -1,0 +1,21 @@
+{
+  "name": "Bengkelin Tefa",
+  "short_name": "Bengkelin",
+  "description": "Sistem Manajemen Bengkel Otomotif Teaching Factory SMKS Pembda Nias",
+  "start_url": "/bengkelin/dashboard.php",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6B2B",
+  "icons": [
+    {
+      "src": "/bengkelin/assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/bengkelin/assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

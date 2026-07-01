@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rencana Kerja Tefa Bengkelin - Edisi Final</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        :root {
+            --primary: #FF6B2B;
+            --secondary: #1E40AF;
+            --success: #059669;
+            --warning: #D97706;
+            --text-main: #111827;
+            --text-muted: #4B5563;
+            --border-color: #D1D5DB;
+            --bg-accent: #F3F4F6;
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            background: #E5E7EB;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 3cm 2.5cm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media print {
+            body { background: none; }
+            .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; padding: 2cm 2cm; }
+            .no-print { display: none; }
+            .page-break { page-break-before: always; }
+        }
+
+        /* Branding Header */
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+        .logo-box {
+            background: var(--primary);
+            color: white;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 30px;
+            margin-right: 25px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(255, 107, 43, 0.2);
+        }
+        .header-text h1 { margin: 0; font-size: 20px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-text p { margin: 0; font-size: 14px; color: var(--text-muted); font-weight: 500; }
+
+        /* Document Titles */
+        .doc-title { 
+            text-align: center; 
+            padding: 40px 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .doc-title h1 { 
+            font-size: 32px; 
+            margin: 0; 
+            line-height: 1.2;
+            color: var(--text-main); 
+            font-weight: 800; 
+            letter-spacing: 1px;
+        }
+        .doc-title p { 
+            font-size: 18px; 
+            color: var(--secondary); 
+            margin: 10px 0 0 0; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+        }
+
+        h2 { 
+            color: var(--secondary); 
+            font-size: 22px; 
+            border-bottom: 2px solid var(--bg-accent); 
+            padding-bottom: 10px; 
+            margin-top: 45px; 
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        h3 { color: var(--text-main); font-size: 16px; margin-top: 25px; font-weight: 700; }
+        p { font-size: 14px; margin-bottom: 15px; text-align: justify; color: var(--text-main); }
+
+        /* Layout Helpers */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .card { 
+            background: #F9FAFB; 
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid #E5E7EB; 
+            transition: background 0.3s;
+        }
+        .card strong { display: block; color: var(--secondary); margin-bottom: 10px; font-size: 15px; }
+        .card ul { padding-left: 20px; margin: 0; font-size: 13px; color: var(--text-muted); }
+
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+        table th { background: #EEF2FF; text-align: left; padding: 14px; border: 1px solid var(--border-color); color: var(--secondary); font-weight: 700; }
+        table td { padding: 12px; border: 1px solid var(--border-color); }
+
+        /* Workflow Steps */
+        .step-list { margin-top: 25px; }
+        .step-item { display: flex; gap: 20px; margin-bottom: 18px; align-items: flex-start; }
+        .step-icon { 
+            background: var(--primary); color: white; width: 32px; height: 32px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; font-size: 15px; flex-shrink: 0;
+            box-shadow: 0 4px 6px rgba(255, 107, 43, 0.15);
+        }
+        .step-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text-main); }
+        .step-text p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-muted); text-align: left; }
+
+        .highlight {
+            border-left: 5px solid var(--primary);
+            background: #FFF7ED;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Status Tags */
+        .tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tag-ready { background: #DCFCE7; color: #166534; }
+        .tag-warn { background: #FEF3C7; color: #92400E; }
+        .tag-error { background: #FEE2E2; color: #991B1B; }
+
+        /* Signature Section */
+        .signature-container {
+            margin-top: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .sig-box { text-align: center; width: 260px; }
+        .sig-box p { text-align: center; margin-bottom: 80px; font-weight: 600; }
+        .sig-box .name { font-weight: 900; text-decoration: underline; font-size: 15px; }
+        .sig-box .title { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Print Bar Container */
+        .no-print-header {
+            background: #111827; color: white; padding: 15px;
+            display: flex; justify-content: center; align-items: center; gap: 30px;
+            position: sticky; top: 0; z-index: 1000;
+            font-size: 14px; letter-spacing: 0.5px;
+        }
+        .print-btn {
+            background: var(--primary);
+            color: white; border: none;
+            padding: 10px 25px; border-radius: 8px;
+            font-weight: 800; cursor: pointer;
+            text-transform: uppercase; font-size: 12px;
+            transition: background 0.3s;
+        }
+        .print-btn:hover { background: #E85A1D; }
+    </style>
+</head>
+<body>
+
+<div class="no-print-header no-print">
+    <span>DOKUMEN RENCANA KERJA TEFA BENGKELIN - EDISI FINAL TERAKURASI</span>
+    <button class="print-btn" onclick="window.print()">Cetak ke PDF / Print</button>
+</div>
+
+<div class="page">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo-box">BENGKELIN</div>
+        <div class="header-text">
+            <h1>SMKS SWASTA PEMBDA NIAS</h1>
+            <p>Teaching Factory (Tefa) — Automotive Management Solutions</p>
+        </div>
+    </div>
+
+    <div class="doc-title">
+        <h1>RENCANA KERJA</h1>
+        <p>Unit Produksi Tefa Automotive Mandiri</p>
+    </div>
+
+    <h2>I. Identitas Unit Usaha</h2>
+    <table style="margin-top: 0;">
+        <tr><td width="40%"><strong>Nama Unit Produksi</strong></td><td>Bengkelin</td></tr>
+        <tr><td><strong>Institusi Organisasi</strong></td><td>SMKS Swasta Pembda Nias</td></tr>
+        <tr><td><strong>Pimpinan Organisasi</strong></td><td>Mrs. Agustiani, M.Pd. (Kepala Sekolah)</td></tr>
+        <tr><td><strong>Lokasi Gerai Tefa</strong></td><td>Jl. Pelita No. 09, Kelurahan Ilir, Kota Gunungsitoli</td></tr>
+        <tr><td><strong>Manajer Workshop / Kabeng</strong></td><td>Mr. Ryan Harefa</td></tr>
+        <tr><td><strong>Dukungan Modal Utama</strong></td><td>Yayasan Perguruan Pembda Nias</td></tr>
+    </table>
+
+    <h2>II. Sistem Manajemen Sumber Daya Manusia</h2>
+    <p>Pengelolaan operasional Bengkelin menggunakan struktur pembagian kerja yang sinkron dengan jadwal akademik sekolah:</p>
+    
+    <div class="card" style="margin-bottom: 12px; border-left: 5px solid var(--success)">
+        <strong>1. Tenaga Administrasi (Full Standby)</strong>
+        Petugas administrasi yang bersiaga di meja pendaftaran untuk menangani *Take Order*, input pendaftaran kendaraan, serta mengelola aplikasi dan keuangan harian.
+    </div>
+
+    <div class="grid">
+        <div class="card" style="border-left: 5px solid var(--secondary)">
+            <strong>2. Junior Teknisi (Full Standby)</strong>
+            Dibentuk dari Alumni SMK lintas kompetensi yang bersiaga penuh di Gerai Tefa (Jl. Pelita) untuk menyambut pelanggan dan menangani pekerjaan rutin.
+        </div>
+        <div class="card" style="border-left: 5px solid var(--warning)">
+            <strong>3. Kepala Bengkel (On-Call Basis)</strong>
+            Kepala Bengkel (Mr. Ryan Harefa) menjalankan sistem *On-Call* (Hadir saat ada pengerjaan berat/verifikasi teknis) agar tidak mengganggu jam mengajar di sekolah.
+        </div>
+    </div>
+
+    <h2>III. Kesiapan Fasilitas & Perlengkapan</h2>
+    <p>Audit ketersediaan aset operasional di titik Gerai Jl. Pelita No. 09:</p>
+    <table>
+        <thead>
+            <tr>
+                <th width="40%">Data Perlengkapan</th>
+                <th width="20%">Status Alat</th>
+                <th>Justifikasi Teknis</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Toolbox Set (Komplit)</td><td><span class="tag tag-ready">Tersedia</span></td><td>Kondisi baik, siap menangani pengerjaan rutin.</td></tr>
+            <tr><td>Lift Mobil / Motor</td><td><span class="tag tag-ready">Tersedia</span></td><td>Instalasi kokoh dan berfungsi normal.</td></tr>
+            <tr><td>Digital Wheel Balancing</td><td><span class="tag tag-ready">Tersedia</span></td><td>Siap untuk kalibrasi keseimbangan roda.</td></tr>
+            <tr><td>Alat Ganti Ban (Tire Changer)</td><td><span class="tag tag-error">Rusak</span></td><td>Sangat mendesak untuk diperbaiki segera.</td></tr>
+            <tr><td>Alat Spooring Kendaraan</td><td><span class="tag tag-warn">Kurang</span></td><td>Rencana penambahan unit baru secepatnya.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="page page-break">
+    <h2>IV. Alur Kerja (Workflow) Pelanggan Digital</h2>
+    <p>Bengkelin menjamin transparansi melalui 7 tahapan alur kerja yang sudah terintegrasi di dalam aplikasi:</p>
+    
+    <div class="step-list">
+        <div class="step-item">
+            <div class="step-icon">1</div>
+            <div class="step-text">
+                <strong>Arrival & Greeting</strong>
+                <p>Pelanggan tiba di gerai dan disambut oleh Teknisi Junior yang bertugas.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-icon">2</div>
+            <div class="step-text">
+                <strong>Digital Registration</strong>
+                <p>Admin menginput data identitas kendaraan dan keluhan ke menu REGISTRASI aplikasi.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-icon">3</div>
+            <div class="step-text">
+                <strong>Initial Diagnosis</strong>
+                <p>Teknisi melakukan cek awal. Admin berkoordinasi dengan Kabeng via sistem jika butuh verifikasi.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-icon">4</div>
+            <div class="step-text">
+                <strong>Work Order Generation</strong>
+                <p>Status pekerjaan naik menjadi WORK ORDER. Penugasan teknisi alumni dikunci secara sistem.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-icon">5</div>
+            <div class="step-text">
+                <strong>Execution & Spare Parts</strong>
+                <p>Pengerjaan fisik dimulai. Pengambilan stok sparepart dicatat secara real-time di sistem inventori.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-icon">6</div>
+            <div class="step-text">
+                <strong>Quality Control (QC)</strong>
+                <p>Kepala Bengkel memastikan pekerjaan sempurna. Admin mengubah status menjadi 'Selesai/Ready'.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-icon">7</div>
+            <div class="step-text">
+                <strong>Payment & Checkout</strong>
+                <p>Sistem mencetak nota resmi. Perhitungan bagi hasil dilakukan otomatis oleh alur kode aplikasi.</p>
+            </div>
+        </div>
+    </div>
+
+    <h2>V. Skema Bagi Hasil Jasa (Revenue Sharing)</h2>
+    <div class="highlight">
+        Formula ini diterapkan pada setiap Transaksi Jasa untuk mengakomodasi kepentingan operasional sekolah dan apresiasi SDM:
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th width="35%">Pilar Penerima</th>
+                <th width="20%">Porsi (%)</th>
+                <th>Alokasi Pemanfaatan Dana</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Kepala Bengkel (Mentor)</strong></td>
+                <td>48%</td>
+                <td>Insentif Tenaga Ahli, Diagnosa & Verifikasi QC.</td>
+            </tr>
+            <tr>
+                <td><strong>Junior Teknisi (Alumni)</strong></td>
+                <td>12%</td>
+                <td>Upah Kerja Langsung (dibagi rata per penugasan).</td>
+            </tr>
+            <tr>
+                <td><strong>Kas Institusi (Tefa/Sekolah)</strong></td>
+                <td>40%</td>
+                <td>Biaya Listrik, Air, Pemeliharaan Alat & Pendapatan SMKS.</td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="font-size: 11px; color: var(--text-muted)">*Keuntungan penjualan Suku Cadang (Spare Part) dikelola 100% oleh sekolah setelah dikurangi Harga Pokok Penjualan (HPP).</p>
+</div>
+
+<div class="page page-break">
+    <h2>VI. Analisis Dukungan Permodalan</h2>
+    <p>Pengembangan unit usaha Automotive Bengkelin didasarkan pada sinergi tiga pilar pemodalan:</p>
+    <ul>
+        <li><strong>SMKS Swasta Pembda Nias</strong>: Kontribusi lahan, bangunan workshop, utilitas, dan legalitas operasional.</li>
+        <li><strong>Investasi Pribadi (Owner)</strong>: Dukungan permodalan taktis untuk alat, sistem informasi (App), dan modal kerja awal.</li>
+        <li><strong>Yayasan Perguruan Pembda Nias</strong>: Dukungan dana pengembangan jangka panjang dan investasi aset alat-alat berat baru.</li>
+    </ul>
+
+    <h2>VII. Tahapan Implementasi Strategis</h2>
+    <table style="font-size: 12px">
+        <thead>
+            <tr>
+                <th width="30%">Tahap Penyelesaian</th>
+                <th>Aktivitas Utama</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>1. Pengorganisasian SDM</strong></td><td>Penempatan Admin, Junior Teknisi Alumni, dan sinkronisasi jadwal Kabeng.</td></tr>
+            <tr><td><strong>2. Restorasi Perlengkapan</strong></td><td>Perbaikan mendalam bagi Tire Changer dan kalibrasi unit Balancing.</td></tr>
+            <tr><td><strong>3. Minimum Stock setup</strong></td><td>Pengadaan oli mesin, filter, dan part fast-moving standar Tefa.</td></tr>
+            <tr><td><strong>4. Place Professionalizing</strong></td><td>Penataan layout Gerai Jl. Pelita agar memiliki visual daya tarik bagi pelanggan.</td></tr>
+            <tr><td><strong>5. Go Production</strong></td><td>Pembukaan resmi dan aktivasi sistem pemasaran berbasis WhatsApp CRM.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>VIII. Penutup & Pengesahan</h2>
+    <p>Proposal ini menjadi pedoman operasional resmi bagi unit usaha Tefa Bengkelin guna menciptakan lulusan yang mandiri dan unit produksi SMK yang berdaya saing tinggi.</p>
+
+    <div class="signature-container">
+        <div class="sig-box">
+            <p>Mengetahui/Menyetujui,</p>
+            <div class="name">Mrs. Agustiani, M.Pd.</div>
+            <div class="title">Kepala SMKS Swasta Pembda Nias</div>
+        </div>
+        <div class="sig-box">
+            <p>Gunungsitoli, <?= date('d F Y') ?></p>
+            <div class="name">Mr. Ryan Harefa</div>
+            <div class="title">Kepala Bengkel</div>
+        </div>
+    </div>
+
+    <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; color: var(--text-muted); font-size: 10px; border-top: 1px solid var(--border-color); padding-top: 15px">
+        Proposal Digital Terintegrasi — Sistem Bengkelin SMK Swasta Pembda Nias &copy; 2026
+    </div>
+</div>
+
+</body>
+</html>
