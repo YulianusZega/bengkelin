@@ -3,21 +3,31 @@
 // BENGKELIN - Database Configuration
 // ============================================================
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'bengkelin');
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$is_local = (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false);
+
+if ($is_local) {
+    // === KONFIGURASI DATABASE LOKAL (XAMPP) ===
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'bengkelin');
+} else {
+    // === KONFIGURASI DATABASE SERVER LIVE (cPanel) ===
+    // GANTI BAGIAN INI dengan detail database yang Anda buat di cPanel
+    define('DB_HOST', 'localhost'); // Biarkan localhost jika di cPanel
+    define('DB_USER', 'user_database_cpanel_anda'); // Ganti dengan username DB cPanel
+    define('DB_PASS', 'password_database_anda');    // Ganti dengan password DB cPanel
+    define('DB_NAME', 'nama_database_cpanel_anda'); // Ganti dengan nama DB cPanel
+}
 define('DB_CHARSET', 'utf8mb4');
 
 // Auto-detect protocol and host for BASE_URL
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-// Jika diakses dari komputer lokal (XAMPP), tambahkan folder /bengkelin
-if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+if ($is_local) {
     define('BASE_URL', "$protocol://$host/bengkelin");
 } else {
-// Jika di server live (seperti bengkelin.cloud), tidak perlu folder tambahan
     define('BASE_URL', "$protocol://$host");
 }
 define('APP_NAME', 'Bengkelin');
