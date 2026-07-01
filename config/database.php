@@ -16,9 +16,9 @@ if ($is_local) {
     // === KONFIGURASI DATABASE SERVER LIVE (cPanel) ===
     // GANTI BAGIAN INI dengan detail database yang Anda buat di cPanel
     define('DB_HOST', 'localhost'); // Biarkan localhost jika di cPanel
-    define('DB_USER', 'user_database_cpanel_anda'); // Ganti dengan username DB cPanel
-    define('DB_PASS', 'password_database_anda');    // Ganti dengan password DB cPanel
-    define('DB_NAME', 'nama_database_cpanel_anda'); // Ganti dengan nama DB cPanel
+    define('DB_USER', 'u401776994_usr_kniqgB0Y'); // Ganti dengan username DB cPanel
+    define('DB_PASS', '#P3lit431');    // Ganti dengan password DB cPanel
+    define('DB_NAME', 'u401776994_db_kniqgB0Y'); // Ganti dengan nama DB cPanel
 }
 define('DB_CHARSET', 'utf8mb4');
 
@@ -32,7 +32,8 @@ if ($is_local) {
 }
 define('APP_NAME', 'Bengkelin');
 
-function getDB(): PDO {
+function getDB(): PDO
+{
     static $pdo = null;
     if ($pdo === null) {
         try {
