@@ -45,6 +45,12 @@ function navBadge(string $page, int $pendingWo, int $pendingBooking): string {
   <?php if (!empty($extraCss)): foreach ($extraCss as $css): ?>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/<?= $css ?>">
   <?php endforeach; endif; ?>
+  <!-- Core Scripts -->
+  <script src="<?= BASE_URL ?>/assets/js/app.js?v=<?= time() ?>"></script>
+  
+  <?php if (!empty($extraJs)): foreach ($extraJs as $js): ?>
+  <script src="<?= BASE_URL ?>/assets/js/<?= $js ?>?v=<?= time() ?>"></script>
+  <?php endforeach; endif; ?>
   <link rel="manifest" href="<?= BASE_URL ?>/manifest.json">
   <meta name="theme-color" content="#FF6B2B">
   <script>
