@@ -158,12 +158,12 @@ body {
 .sidebar-nav { padding: 12px 0; flex: 1; }
 
 .nav-section-title {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   color: rgba(255,255,255,.3);
-  padding: 16px 20px 6px;
+  padding: 16px 24px 8px;
 }
 
 .nav-item { position: relative; }
@@ -171,31 +171,34 @@ body {
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
+  gap: 14px;
+  padding: 12px 16px;
+  margin: 4px 16px;
+  width: calc(100% - 32px);
   color: rgba(255,255,255,.6);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 0;
-  transition: var(--transition);
+  border-radius: 10px;
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   border: none;
-  background: none;
-  width: 100%;
+  background: transparent;
 }
 .nav-link:hover {
   color: #fff;
-  background: rgba(255,255,255,.06);
-  padding-left: 24px;
+  background: rgba(255,255,255,.08);
+  transform: translateX(4px);
 }
 .nav-link.active {
   color: #fff;
-  background: rgba(255,107,43,.15);
-  border-right: 3px solid var(--primary);
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(255,107,43,.3);
+  font-weight: 600;
 }
-.nav-link.active .nav-icon { color: var(--primary); }
-.nav-icon { width: 20px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.nav-link.active .nav-icon { color: #fff; }
+.nav-icon { width: 22px; text-align: center; font-size: 15px; flex-shrink: 0; transition: transform .3s; }
+.nav-link:hover .nav-icon { transform: scale(1.1); }
 .nav-badge {
   margin-left: auto;
   background: var(--danger);
