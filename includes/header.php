@@ -63,7 +63,11 @@ function navBadge(string $page, int $pendingWo, int $pendingBooking): string {
   </script>
 </head>
 <body>
-
+<script>
+  // Mencegah FOUC (Flash) saat memuat halaman dengan menerapkan class secara langsung sebelum DOM dirender
+  if (localStorage.getItem('bengkelin_dark_mode') === 'true') document.body.classList.add('dark-mode');
+  if (localStorage.getItem('bengkelin_sidebar_collapsed') === 'true' && window.innerWidth > 1024) document.body.classList.add('sidebar-collapsed');
+</script>
 <div id="loading-overlay" class="loading-overlay">
   <div class="spinner"></div>
 </div>
