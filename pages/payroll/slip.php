@@ -3,39 +3,36 @@ require_once __DIR__ . '/../../includes/auth.php';
 requireLogin();
 requireRole('owner', 'admin');
 
-$month = $_GET['month'] ?? date('Y-m');
-[$yr, $mo] = explode('-', $month);
+$startDate = $_GET['start_date'] ?? date('Y-m-01');
+$endDate   = $_GET['end_date']   ?? date('Y-m-t');
 
 $db = getDB();
 
 // Load settings
 $cfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN
-    ('service_mechanic_pct','service_owner_pct','senior_share_pct','junior_share_pct',
-     'admin_bonus_pct','senior_min_guarantee','bengkel_name','bengkel_address','bengkel_phone')")
+    ('service_mechanic_pct','service_owner_pct',
+     'admin_bonus_pct','bengkel_name','bengkel_address','bengkel_phone')")
     ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $svcMechPct   = (float)($cfg['service_mechanic_pct'] ?? 60);
 $svcOwnerPct  = (float)($cfg['service_owner_pct']    ?? 40);
-$seniorPct    = (float)($cfg['senior_share_pct']     ?? 80);
-$juniorPct    = (float)($cfg['junior_share_pct']     ?? 20);
 $adminBonusPct= (float)($cfg['admin_bonus_pct']      ?? 1);
-$seniorMin    = (float)($cfg['senior_min_guarantee'] ?? 0);
 
-// Load all salary records for this month
+// Load all salary records for this period
 $records = $db->prepare("
     SELECT sr.*, e.name, e.employee_id, e.position, e.salary AS base_sal
     FROM salary_records sr
     JOIN employees e ON sr.employee_id = e.id
-    WHERE sr.period_year=? AND sr.period_month=?
+    WHERE sr.period_start=? AND sr.period_end=?
     ORDER BY FIELD(e.position,'senior_teknisi','junior_teknisi','admin') ASC, e.name ASC
 ");
-$records->execute([$yr, $mo]);
+$records->execute([$startDate, $endDate]);
 $records = $records->fetchAll();
 
 $bengkelName = htmlspecialchars($cfg['bengkel_name'] ?? 'Bengkelin');
 $bengkelAddr = htmlspecialchars($cfg['bengkel_address'] ?? '');
 $bengkelPhone = htmlspecialchars($cfg['bengkel_phone'] ?? '');
-$periodeLabel = date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr));
+$periodeLabel = date('d M Y', strtotime($startDate)) . ' s/d ' . date('d M Y', strtotime($endDate));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -88,7 +85,7 @@ $periodeLabel = date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr));
       <div style="color:#888;font-size:13px">Periode: <?= $periodeLabel ?> · <?= $bengkelName ?></div>
     </div>
     <div style="display:flex;gap:10px">
-      <a href="<?= BASE_URL ?>/pages/payroll/index.php?month=<?= $month ?>" style="padding:8px 16px;border:1px solid #ddd;border-radius:8px;text-decoration:none;color:#333;font-size:13px">← Kembali</a>
+      <a href="<?= BASE_URL ?>/pages/payroll/index.php?start_date=<?= $startDate ?>&end_date=<?= $endDate ?>" style="padding:8px 16px;border:1px solid #ddd;border-radius:8px;text-decoration:none;color:#333;font-size:13px">← Kembali</a>
       <button onclick="window.print()" style="background:#FF6B2B;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer">🖨 Cetak Semua</button>
     </div>
   </div>
@@ -96,8 +93,8 @@ $periodeLabel = date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr));
   <?php if (empty($records)): ?>
   <div class="no-print-msg">
     <i style="font-size:40px">📋</i><br>
-    Belum ada data gaji bulan ini.<br>
-    <a href="<?= BASE_URL ?>/pages/payroll/index.php?month=<?= $month ?>" style="color:#FF6B2B">Generate Gaji terlebih dahulu</a>
+    Belum ada data gaji pada periode ini.<br>
+    <a href="<?= BASE_URL ?>/pages/payroll/index.php?start_date=<?= $startDate ?>&end_date=<?= $endDate ?>" style="color:#FF6B2B">Generate Gaji terlebih dahulu</a>
   </div>
   <?php else: ?>
   <div class="slip-grid">

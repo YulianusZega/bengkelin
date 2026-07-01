@@ -7,8 +7,8 @@ $title      = 'Penggajian';
 $activePage = 'payroll';
 $db         = getDB();
 
-$month = $_GET['month'] ?? date('Y-m');
-[$yr, $mo] = explode('-', $month);
+$startDate = $_GET['start_date'] ?? date('Y-m-01');
+$endDate   = $_GET['end_date']   ?? date('Y-m-t');
 
 // Load revenue settings
 $cfg = $db->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN
@@ -18,53 +18,44 @@ $cfg = $db->query("SELECT setting_key, setting_value FROM settings WHERE setting
 
 $svcMechPct   = (float)($cfg['service_mechanic_pct'] ?? 60);
 $svcOwnerPct  = (float)($cfg['service_owner_pct']    ?? 40);
-$seniorPct    = (float)($cfg['senior_share_pct']     ?? 80);
-$juniorPct    = (float)($cfg['junior_share_pct']     ?? 20);
 $adminBonusPct= (float)($cfg['admin_bonus_pct']      ?? 1);
-$seniorMin    = (float)($cfg['senior_min_guarantee'] ?? 0);
 
-// Total omset bulan ini (untuk bonus admin)
-$omset = $db->prepare("SELECT COALESCE(SUM(total),0) FROM work_orders WHERE payment_status='paid' AND YEAR(updated_at)=? AND MONTH(updated_at)=?");
-$omset->execute([$yr, $mo]);
+// Total omset periode ini (untuk bonus admin)
+$omset = $db->prepare("SELECT COALESCE(SUM(total),0) FROM work_orders WHERE payment_status='paid' AND DATE(updated_at) BETWEEN ? AND ?");
+$omset->execute([$startDate, $endDate]);
 $totalOmset = (float)$omset->fetchColumn();
 
-// Total jasa bulan ini
-$jasa = $db->prepare("SELECT COALESCE(SUM(subtotal_services),0) FROM work_orders WHERE payment_status='paid' AND YEAR(updated_at)=? AND MONTH(updated_at)=?");
-$jasa->execute([$yr, $mo]);
+// Total jasa periode ini
+$jasa = $db->prepare("SELECT COALESCE(SUM(subtotal_services),0) FROM work_orders WHERE payment_status='paid' AND DATE(updated_at) BETWEEN ? AND ?");
+$jasa->execute([$startDate, $endDate]);
 $totalJasa = (float)$jasa->fetchColumn();
 
-// Total part bulan ini
-$part = $db->prepare("SELECT COALESCE(SUM(subtotal_parts),0) FROM work_orders WHERE payment_status='paid' AND YEAR(updated_at)=? AND MONTH(updated_at)=?");
-$part->execute([$yr, $mo]);
+// Total part periode ini
+$part = $db->prepare("SELECT COALESCE(SUM(subtotal_parts),0) FROM work_orders WHERE payment_status='paid' AND DATE(updated_at) BETWEEN ? AND ?");
+$part->execute([$startDate, $endDate]);
 $totalParts = (float)$part->fetchColumn();
 
 // Semua karyawan aktif
 $employees = $db->query("SELECT e.*, u.email FROM employees e LEFT JOIN users u ON e.user_id=u.id WHERE e.status='active' ORDER BY FIELD(e.position,'owner','senior_teknisi','junior_teknisi','admin') ASC, e.name ASC")->fetchAll();
 
-// Per mechanic revenue — Multi-Assistant aware
+// Per mechanic revenue — Hanya untuk Senior / Teknisi Utama
 $woStmt = $db->prepare("
     SELECT 
         wo.id, 
         wo.mechanic_id, 
-        wo.subtotal_services,
-        GROUP_CONCAT(wa.employee_id) as assistant_ids
+        wo.subtotal_services
     FROM work_orders wo
-    LEFT JOIN wo_assistants wa ON wo.id = wa.wo_id
     WHERE wo.payment_status='paid' 
       AND wo.status IN ('done','delivered')
-      AND YEAR(wo.updated_at)=? 
-      AND MONTH(wo.updated_at)=?
-    GROUP BY wo.id
+      AND DATE(wo.updated_at) BETWEEN ? AND ?
 ");
-$woStmt->execute([$yr, $mo]);
+$woStmt->execute([$startDate, $endDate]);
 $woList = $woStmt->fetchAll();
 
 $mechRevMap = [];
 foreach ($woList as $wo) {
     $svcTotal = (float)$wo['subtotal_services'];
     $primId   = $wo['mechanic_id'];
-    $asstIds  = $wo['assistant_ids'] ? explode(',', $wo['assistant_ids']) : [];
-    $isSolo   = empty($asstIds);
     
     // Process Primary
     if ($primId) {
@@ -72,30 +63,10 @@ foreach ($woList as $wo) {
         $mechRevMap[$primId]['wo_count']++;
         $mechRevMap[$primId]['service_rev'] += $svcTotal;
         
-        if ($isSolo) {
-            $bonus = $svcTotal * ($svcMechPct / 100);
-            $mechRevMap[$primId]['bonus'] += $bonus;
-            // Notes for transparency
-            $mechRevMap[$primId]['notes'][] = "Solo: " . formatRupiah($svcTotal);
-        } else {
-            $bonus = $svcTotal * ($svcMechPct / 100) * ($seniorPct / 100);
-            $mechRevMap[$primId]['bonus'] += $bonus;
-            $mechRevMap[$primId]['notes'][] = "Utama (+" . count($asstIds) . " asst): " . formatRupiah($svcTotal);
-        }
-    }
-    
-    // Process Assistants
-    if (!$isSolo) {
-        $totalJuniorBonus = $svcTotal * ($svcMechPct / 100) * ($juniorPct / 100);
-        $perJuniorBonus   = $totalJuniorBonus / count($asstIds);
-        
-        foreach ($asstIds as $aid) {
-            if (!isset($mechRevMap[$aid])) $mechRevMap[$aid] = ['wo_count'=>0, 'service_rev'=>0, 'bonus'=>0, 'notes'=>[]];
-            $mechRevMap[$aid]['wo_count']++;
-            $mechRevMap[$aid]['service_rev'] += $svcTotal;
-            $mechRevMap[$aid]['bonus'] += $perJuniorBonus;
-            $mechRevMap[$aid]['notes'][] = "Asisten (rata): " . formatRupiah($svcTotal);
-        }
+        $bonus = $svcTotal * ($svcMechPct / 100);
+        $mechRevMap[$primId]['bonus'] += $bonus;
+        // Notes for transparency
+        $mechRevMap[$primId]['notes'][] = "Jasa: " . formatRupiah($svcTotal);
     }
 }
 // Summarize notes to avoid duplicates in display
@@ -114,8 +85,8 @@ foreach ($mechRevMap as $eid => &$m) {
 unset($m);
 
 // Existing salary records
-$salaryStmt = $db->prepare("SELECT * FROM salary_records WHERE period_year=? AND period_month=?");
-$salaryStmt->execute([$yr, $mo]);
+$salaryStmt = $db->prepare("SELECT * FROM salary_records WHERE period_start=? AND period_end=?");
+$salaryStmt->execute([$startDate, $endDate]);
 $salaryMap = [];
 foreach ($salaryStmt->fetchAll() as $r) {
     $salaryMap[$r['employee_id']] = $r;
@@ -196,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf($_POST['csrf_token'] ?? 
             if ($e['position'] === 'owner') continue;
             $db->prepare("
                 INSERT INTO salary_records
-                  (employee_id, period_year, period_month, base_salary, service_bonus, omset_bonus, total_salary, wo_count, service_revenue, notes, created_by)
+                  (employee_id, period_start, period_end, base_salary, service_bonus, omset_bonus, total_salary, wo_count, service_revenue, notes, created_by)
                 VALUES (?,?,?,?,?,?,?,?,?,?,?)
                 ON DUPLICATE KEY UPDATE
                   base_salary=VALUES(base_salary), service_bonus=VALUES(service_bonus),
@@ -204,28 +175,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf($_POST['csrf_token'] ?? 
                   wo_count=VALUES(wo_count), service_revenue=VALUES(service_revenue),
                   notes=VALUES(notes), updated_at=NOW()
             ")->execute([
-                $e['id'], $yr, $mo,
+                $e['id'], $startDate, $endDate,
                 $row['base_salary'], $row['service_bonus'], $row['omset_bonus'],
                 $row['total'], $row['wo_count'], $row['service_rev'],
                 $row['note'], $_SESSION['user_id'] ?? 1
             ]);
         }
-        flashSet('success', 'Data gaji bulan ' . date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr)) . ' berhasil dibuat/diperbarui.');
-        header('Location: ' . BASE_URL . '/pages/payroll/index.php?month=' . $month); exit;
+        flashSet('success', 'Data gaji periode ' . $startDate . ' s/d ' . $endDate . ' berhasil dibuat/diperbarui.');
+        header('Location: ' . BASE_URL . '/pages/payroll/index.php?start_date=' . $startDate . '&end_date=' . $endDate); exit;
     }
 
     if ($action === 'approve' && isset($_POST['salary_id'])) {
         $db->prepare("UPDATE salary_records SET status='approved', approved_by=?, approved_at=NOW() WHERE id=?")
            ->execute([$_SESSION['user_id'] ?? 1, (int)$_POST['salary_id']]);
         flashSet('success', 'Gaji disetujui.');
-        header('Location: ' . BASE_URL . '/pages/payroll/index.php?month=' . $month); exit;
+        header('Location: ' . BASE_URL . '/pages/payroll/index.php?start_date=' . $startDate . '&end_date=' . $endDate); exit;
     }
 
     if ($action === 'mark_paid' && isset($_POST['salary_id'])) {
         $db->prepare("UPDATE salary_records SET status='paid', paid_at=NOW() WHERE id=?")
            ->execute([(int)$_POST['salary_id']]);
         flashSet('success', 'Gaji ditandai sudah dibayar.');
-        header('Location: ' . BASE_URL . '/pages/payroll/index.php?month=' . $month); exit;
+        header('Location: ' . BASE_URL . '/pages/payroll/index.php?start_date=' . $startDate . '&end_date=' . $endDate); exit;
     }
 }
 
@@ -235,17 +206,19 @@ include __DIR__ . '/../../includes/header.php';
 <div class="page-header">
   <div class="page-header-left">
     <h1>Penggajian & Bagi Hasil</h1>
-    <p>Kalkulasi gaji karyawan dan bagi hasil jasa — <?= date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr)) ?></p>
+    <p>Kalkulasi gaji karyawan dan bagi hasil jasa — Periode: <?= date('d M Y', strtotime($startDate)) ?> s/d <?= date('d M Y', strtotime($endDate)) ?></p>
   </div>
   <div class="page-header-right">
     <a href="<?= BASE_URL ?>/pages/payroll/settings.php" class="btn btn-outline">
       <i class="fas fa-percentage"></i> Atur Persentase
     </a>
-    <a href="<?= BASE_URL ?>/pages/payroll/slip.php?month=<?= $month ?>" class="btn btn-outline" target="_blank">
+    <a href="<?= BASE_URL ?>/pages/payroll/slip.php?start_date=<?= $startDate ?>&end_date=<?= $endDate ?>" class="btn btn-outline" target="_blank">
       <i class="fas fa-file-invoice"></i> Slip Gaji
     </a>
     <form method="GET" style="display:inline-flex;gap:8px;align-items:center">
-      <input type="month" name="month" class="form-control" value="<?= $month ?>" style="width:180px">
+      <input type="date" name="start_date" class="form-control" value="<?= $startDate ?>">
+      <span>s/d</span>
+      <input type="date" name="end_date" class="form-control" value="<?= $endDate ?>">
       <button type="submit" class="btn btn-primary">Tampilkan</button>
     </form>
   </div>
@@ -302,14 +275,6 @@ include __DIR__ . '/../../includes/header.php';
         <div style="text-align:center">
           <div style="font-size:22px;font-weight:800;color:var(--success)"><?= $svcOwnerPct ?>%</div>
           <div style="font-size:11px;color:var(--text-muted)">Jasa → Owner</div>
-        </div>
-        <div style="border-left:1px solid var(--border);padding-left:24px;text-align:center">
-          <div style="font-size:22px;font-weight:800;color:var(--warning)"><?= $seniorPct ?>%</div>
-          <div style="font-size:11px;color:var(--text-muted)">dari Mekanik → Senior Teknisi</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:22px;font-weight:800;color:var(--info)"><?= $juniorPct ?>%</div>
-          <div style="font-size:11px;color:var(--text-muted)">dari Mekanik → Junior</div>
         </div>
         <div style="border-left:1px solid var(--border);padding-left:24px;text-align:center">
           <div style="font-size:22px;font-weight:800;color:var(--danger)">100%</div>
@@ -437,7 +402,7 @@ include __DIR__ . '/../../includes/header.php';
                   <button class="btn btn-success btn-sm"><i class="fas fa-money-bill"></i> Bayar</button>
                 </form>
               <?php else: ?>
-                <a href="<?= BASE_URL ?>/pages/payroll/slip_single.php?salary_id=<?= $ex['id'] ?>" target="_blank" class="btn btn-outline btn-sm">
+                <a href="<?= BASE_URL ?>/pages/payroll/slip.php?start_date=<?= $startDate ?>&end_date=<?= $endDate ?>" target="_blank" class="btn btn-outline btn-sm">
                   <i class="fas fa-print"></i> Slip
                 </a>
               <?php endif; ?>

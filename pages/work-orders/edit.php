@@ -327,28 +327,20 @@ function updateRevenuePreview() {
   const mechShare  = svcTotal * MECH_PCT  / 100;
   const ownerShare = svcTotal * OWNER_PCT / 100;
 
-  let rows = [];
+  let rows = [
+    { label: mechName + ' (Teknisi Utama)', pct: MECH_PCT+'%', val: mechShare, color:'#F59E0B' },
+    { label: 'Owner (Jasa)',        pct: OWNER_PCT+'%', val: ownerShare, color:'#10B981' },
+  ];
 
-  if (juniorCount === 0) {
-    rows = [
-      { label: mechName + ' (Solo)', pct: MECH_PCT+'%', val: mechShare, color:'#F59E0B' },
-      { label: 'Owner (Jasa)',        pct: OWNER_PCT+'%', val: ownerShare, color:'#10B981' },
-    ];
-  } else {
-    const seniorBonus = mechShare * SENIOR_PCT / 100;
-    const totalJunior = mechShare * JUNIOR_PCT / 100;
-    const perJunior   = totalJunior / juniorCount;
-
-    rows.push({ label: mechName + ' (Senior Teknisi)', pct: MECH_PCT+'%×'+SENIOR_PCT+'%', val: seniorBonus, color:'#F59E0B' });
+  if (juniorCount > 0) {
     juniorNames.forEach((n, i) => {
       rows.push({
-        label: n.replace(/\s*\(.*\)/, '').trim() + ' (Asisten)',
-        pct: MECH_PCT+'%×'+JUNIOR_PCT+'%÷'+juniorCount,
-        val: perJunior,
+        label: n.replace(/\s*\(.*\)/, '').trim() + ' (Asisten - Gaji Pokok)',
+        pct: 'Mingguan',
+        val: 0,
         color:'#3B82F6'
       });
     });
-    rows.push({ label: 'Owner (Jasa)', pct: OWNER_PCT+'%', val: ownerShare, color:'#10B981' });
   }
 
   if(prevBox) prevBox.style.display = 'block';
