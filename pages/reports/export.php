@@ -38,7 +38,7 @@ if ($type === 'monthly') {
     // BOM for Excel
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
 
-    fputcsv($out, ['No. WO','Tanggal','Pelanggan','Telepon','Kendaraan','Plat Nomor','Mekanik','Status','Jasa','Part','Diskon','Total','Dibayar','Status Bayar','Metode']);
+    fputcsv($out, ['No. WO','Tanggal','Pelanggan','Telepon','Kendaraan','Plat Nomor','Teknisi','Status','Jasa','Part','Diskon','Total','Dibayar','Status Bayar','Metode']);
     foreach ($rows as $r) {
         fputcsv($out, [
             $r['wo_number'],
@@ -63,7 +63,7 @@ if ($type === 'monthly') {
 }
 
 if ($type === 'mechanic') {
-    $filename = "Performa_Mekanik_{$monthLabel}.csv";
+    $filename = "Performa_Teknisi_{$monthLabel}.csv";
 
     $mechanics = $db->prepare("
         SELECT e.employee_id, e.name, e.specialization,
@@ -80,7 +80,7 @@ if ($type === 'mechanic') {
             FROM work_orders w JOIN wo_assistants wa ON w.id = wa.wo_id
         ) wo ON e.id = wo.emp_id 
             AND YEAR(wo.created_at)=? AND MONTH(wo.created_at)=?
-        WHERE e.position IN ('mekanik','kabeng') AND e.status = 'active'
+        WHERE e.position IN ('junior_teknisi','senior_teknisi') AND e.status = 'active'
         GROUP BY e.id, e.employee_id, e.name, e.specialization, e.commission_rate
         ORDER BY revenue DESC
     ");

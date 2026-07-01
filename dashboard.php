@@ -37,7 +37,7 @@ $mechanicWorkload = $db->query("
     SELECT e.name, COUNT(wo.id) as active_wo
     FROM employees e
     LEFT JOIN work_orders wo ON e.id = wo.mechanic_id AND wo.status NOT IN ('done','delivered','cancelled')
-    WHERE e.position = 'mekanik' AND e.status = 'active'
+    WHERE e.position = 'junior_teknisi' AND e.status = 'active'
     GROUP BY e.id
     ORDER BY active_wo DESC
 ")->fetchAll();

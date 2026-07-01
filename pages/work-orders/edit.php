@@ -12,10 +12,10 @@ if (!$wo || in_array($wo['status'], ['done','delivered','cancelled'])) {
     flashSet('danger','Work order tidak dapat diedit.'); header('Location: ' . BASE_URL . '/pages/work-orders/view.php?id=' . $id); exit;
 }
 
-$mechanics         = $db->query("SELECT id,name,position,specialization FROM employees WHERE position IN ('mekanik','kabeng') AND status='active' ORDER BY FIELD(position,'kabeng','mekanik'),name")->fetchAll();
-$revCfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN ('service_mechanic_pct','kabeng_share_pct','junior_share_pct')")->fetchAll(PDO::FETCH_KEY_PAIR);
+$mechanics         = $db->query("SELECT id,name,position,specialization FROM employees WHERE position IN ('junior_teknisi','senior_teknisi') AND status='active' ORDER BY FIELD(position,'senior_teknisi','junior_teknisi'),name")->fetchAll();
+$revCfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN ('service_mechanic_pct','senior_share_pct','junior_share_pct')")->fetchAll(PDO::FETCH_KEY_PAIR);
 $svcMechPct = (float)($revCfg['service_mechanic_pct'] ?? 60);
-$kabengPct  = (float)($revCfg['kabeng_share_pct']     ?? 80);
+$seniorPct  = (float)($revCfg['senior_share_pct']     ?? 80);
 $juniorPct  = (float)($revCfg['junior_share_pct']     ?? 20);
 $woServices        = $db->prepare("SELECT * FROM wo_services WHERE wo_id=?"); $woServices->execute([$id]); $woServices=$woServices->fetchAll();
 $woParts           = $db->prepare("SELECT * FROM wo_parts WHERE wo_id=?"); $woParts->execute([$id]); $woParts=$woParts->fetchAll();
@@ -29,8 +29,8 @@ $curAssistants = $db->prepare("SELECT employee_id FROM wo_assistants WHERE wo_id
 $curAssistants->execute([$id]);
 $curAssistantIds = $curAssistants->fetchAll(PDO::FETCH_COLUMN);
 
-$kabengList = array_filter($mechanics, fn($m) => $m['position'] === 'kabeng');
-$juniorList = array_filter($mechanics, fn($m) => $m['position'] === 'mekanik');
+$seniorList = array_filter($mechanics, fn($m) => $m['position'] === 'senior_teknisi');
+$juniorList = array_filter($mechanics, fn($m) => $m['position'] === 'junior_teknisi');
 
 $title      = 'Edit Work Order';
 $activePage = 'work-orders';
@@ -69,24 +69,24 @@ include __DIR__ . '/../../includes/header.php';
               <i class="fas fa-user-cog"></i> Penugasan Teknisi
             </div>
             <div class="form-group">
-              <label class="form-label">Mekanik Utama / Kepala Bengkel</label>
+              <label class="form-label">Teknisi Utama / Senior Teknisi</label>
               <select name="mechanic_id" id="mechanic_id" class="form-control" onchange="updateRevenuePreview()">
                 <option value="">— Belum ditugaskan —</option>
-                <?php foreach ($kabengList as $m): ?>
+                <?php foreach ($seniorList as $m): ?>
                 <option value="<?= $m['id'] ?>" <?= $wo['mechanic_id']==$m['id']?'selected':'' ?>>
                   👑 <?= htmlspecialchars($m['name']) ?>
                 </option>
                 <?php endforeach; ?>
               </select>
-              <small style="color:var(--text-muted);font-size:12px">Mekanik yang memimpin pengerjaan</small>
+              <small style="color:var(--text-muted);font-size:12px">Teknisi yang memimpin pengerjaan</small>
             </div>
             <div class="form-group" style="margin-top:4px">
               <label class="form-label">
-                Junior Mekanik / Asisten
+                Junior Teknisi / Asisten
                 <span style="color:var(--text-muted);font-weight:400">(opsional, bisa lebih dari 1)</span>
               </label>
               <?php if (empty($juniorList)): ?>
-              <div style="font-size:13px;color:var(--text-muted);padding:10px;background:#f9fafb;border-radius:8px">Belum ada Junior Mekanik aktif</div>
+              <div style="font-size:13px;color:var(--text-muted);padding:10px;background:#f9fafb;border-radius:8px">Belum ada Junior Teknisi aktif</div>
               <?php else: ?>
               <div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:#f9fafb;border-radius:8px" id="junior-checkboxes">
                 <?php foreach ($juniorList as $m): $checked = in_array($m['id'], $curAssistantIds); ?>
@@ -283,7 +283,7 @@ function recalcTotal() {
 
 // Revenue Preview
 const MECH_PCT   = <?= $svcMechPct ?>;
-const KABENG_PCT = <?= $kabengPct ?>;
+const SENIOR_PCT = <?= $seniorPct ?>;
 const JUNIOR_PCT = <?= $juniorPct ?>;
 const OWNER_PCT  = 100 - MECH_PCT;
 function checkboxChanged(cb, id) {
@@ -320,7 +320,7 @@ function updateRevenuePreview() {
   });
   if (svcTotal <= 0) { if(prevBox) prevBox.style.display='none'; return; }
 
-  const mechName   = mecSel.selectedOptions[0]?.text?.replace(/^[\u{1F451}\s]+/u,'').trim() || 'Kepala Bengkel';
+  const mechName   = mecSel.selectedOptions[0]?.text?.replace(/^[\u{1F451}\s]+/u,'').trim() || 'Senior Teknisi';
   const juniorNames= getCheckedJuniors();
   const juniorCount= juniorNames.length;
 
@@ -335,11 +335,11 @@ function updateRevenuePreview() {
       { label: 'Owner (Jasa)',        pct: OWNER_PCT+'%', val: ownerShare, color:'#10B981' },
     ];
   } else {
-    const kabengBonus = mechShare * KABENG_PCT / 100;
+    const seniorBonus = mechShare * SENIOR_PCT / 100;
     const totalJunior = mechShare * JUNIOR_PCT / 100;
     const perJunior   = totalJunior / juniorCount;
 
-    rows.push({ label: mechName + ' (Kabeng)', pct: MECH_PCT+'%×'+KABENG_PCT+'%', val: kabengBonus, color:'#F59E0B' });
+    rows.push({ label: mechName + ' (Senior Teknisi)', pct: MECH_PCT+'%×'+SENIOR_PCT+'%', val: seniorBonus, color:'#F59E0B' });
     juniorNames.forEach((n, i) => {
       rows.push({
         label: n.replace(/\s*\(.*\)/, '').trim() + ' (Asisten)',

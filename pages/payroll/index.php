@@ -12,16 +12,16 @@ $month = $_GET['month'] ?? date('Y-m');
 
 // Load revenue settings
 $cfg = $db->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN
-    ('service_mechanic_pct','service_owner_pct','kabeng_share_pct','junior_share_pct',
-     'parts_owner_pct','admin_bonus_pct','kabeng_min_guarantee')")
+    ('service_mechanic_pct','service_owner_pct','senior_share_pct','junior_share_pct',
+     'parts_owner_pct','admin_bonus_pct','senior_min_guarantee')")
     ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $svcMechPct   = (float)($cfg['service_mechanic_pct'] ?? 60);
 $svcOwnerPct  = (float)($cfg['service_owner_pct']    ?? 40);
-$kabengPct    = (float)($cfg['kabeng_share_pct']     ?? 80);
+$seniorPct    = (float)($cfg['senior_share_pct']     ?? 80);
 $juniorPct    = (float)($cfg['junior_share_pct']     ?? 20);
 $adminBonusPct= (float)($cfg['admin_bonus_pct']      ?? 1);
-$kabengMin    = (float)($cfg['kabeng_min_guarantee'] ?? 0);
+$seniorMin    = (float)($cfg['senior_min_guarantee'] ?? 0);
 
 // Total omset bulan ini (untuk bonus admin)
 $omset = $db->prepare("SELECT COALESCE(SUM(total),0) FROM work_orders WHERE payment_status='paid' AND YEAR(updated_at)=? AND MONTH(updated_at)=?");
@@ -39,7 +39,7 @@ $part->execute([$yr, $mo]);
 $totalParts = (float)$part->fetchColumn();
 
 // Semua karyawan aktif
-$employees = $db->query("SELECT e.*, u.email FROM employees e LEFT JOIN users u ON e.user_id=u.id WHERE e.status='active' ORDER BY FIELD(e.position,'owner','kabeng','mekanik','admin') ASC, e.name ASC")->fetchAll();
+$employees = $db->query("SELECT e.*, u.email FROM employees e LEFT JOIN users u ON e.user_id=u.id WHERE e.status='active' ORDER BY FIELD(e.position,'owner','senior_teknisi','junior_teknisi','admin') ASC, e.name ASC")->fetchAll();
 
 // Per mechanic revenue — Multi-Assistant aware
 $woStmt = $db->prepare("
@@ -78,7 +78,7 @@ foreach ($woList as $wo) {
             // Notes for transparency
             $mechRevMap[$primId]['notes'][] = "Solo: " . formatRupiah($svcTotal);
         } else {
-            $bonus = $svcTotal * ($svcMechPct / 100) * ($kabengPct / 100);
+            $bonus = $svcTotal * ($svcMechPct / 100) * ($seniorPct / 100);
             $mechRevMap[$primId]['bonus'] += $bonus;
             $mechRevMap[$primId]['notes'][] = "Utama (+" . count($asstIds) . " asst): " . formatRupiah($svcTotal);
         }
@@ -128,12 +128,12 @@ $ownerPartsIncome  = $totalParts;
 $ownerTotalIncome  = $ownerSvcIncome + $ownerPartsIncome;
 $totalPayroll      = 0;
 
-// Hitung total mekanik & kabeng untuk distribusi
-$kabengCount = 0;
+// Hitung total mekanik & senior untuk distribusi
+$seniorCount = 0;
 $juniorCount = 0;
 foreach ($employees as $e) {
-    if ($e['position'] === 'kabeng') $kabengCount++;
-    if ($e['position'] === 'mekanik') $juniorCount++;
+    if ($e['position'] === 'senior_teknisi') $seniorCount++;
+    if ($e['position'] === 'junior_teknisi') $juniorCount++;
 }
 
 foreach ($employees as $e) {
@@ -145,7 +145,7 @@ foreach ($employees as $e) {
     $svcRev    = 0;
     $note      = '';
 
-    if ($pos === 'kabeng' || $pos === 'mekanik') {
+    if ($pos === 'senior_teknisi' || $pos === 'junior_teknisi') {
         $rev     = $mechRevMap[$e['id']] ?? null;
         $svcRev  = $rev ? (float)$rev['service_rev'] : 0;
         $woCount = $rev ? (int)$rev['wo_count']       : 0;
@@ -153,8 +153,8 @@ foreach ($employees as $e) {
         if ($rev) {
             $svcBonus = (float)$rev['bonus'];
 
-            // Apply minimum guarantee for kabeng
-            if ($pos === 'kabeng' && $svcBonus < $kabengMin) $svcBonus = $kabengMin;
+            // Apply minimum guarantee for senior
+            if ($pos === 'senior_teknisi' && $svcBonus < $seniorMin) $svcBonus = $seniorMin;
             
             $note = $rev['note_text'];
         }
@@ -304,8 +304,8 @@ include __DIR__ . '/../../includes/header.php';
           <div style="font-size:11px;color:var(--text-muted)">Jasa → Owner</div>
         </div>
         <div style="border-left:1px solid var(--border);padding-left:24px;text-align:center">
-          <div style="font-size:22px;font-weight:800;color:var(--warning)"><?= $kabengPct ?>%</div>
-          <div style="font-size:11px;color:var(--text-muted)">dari Mekanik → Kabeng</div>
+          <div style="font-size:22px;font-weight:800;color:var(--warning)"><?= $seniorPct ?>%</div>
+          <div style="font-size:11px;color:var(--text-muted)">dari Mekanik → Senior Teknisi</div>
         </div>
         <div style="text-align:center">
           <div style="font-size:22px;font-weight:800;color:var(--info)"><?= $juniorPct ?>%</div>
@@ -380,8 +380,8 @@ include __DIR__ . '/../../includes/header.php';
             } else {
                 $statusBadge = '— Belum generate'; $statusColor = 'var(--text-muted)';
             }
-            $posIcons = ['owner'=>'fa-crown','kabeng'=>'fa-user-tie','mekanik'=>'fa-wrench','admin'=>'fa-user-cog'];
-            $posColors= ['owner'=>'var(--primary)','kabeng'=>'var(--warning)','mekanik'=>'var(--info)','admin'=>'var(--success)'];
+            $posIcons = ['owner'=>'fa-crown','senior_teknisi'=>'fa-user-tie','junior_teknisi'=>'fa-wrench','admin'=>'fa-user-cog'];
+            $posColors= ['owner'=>'var(--primary)','senior_teknisi'=>'var(--warning)','junior_teknisi'=>'var(--info)','admin'=>'var(--success)'];
         ?>
         <tr>
           <td>

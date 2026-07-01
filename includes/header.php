@@ -7,13 +7,13 @@ $user = currentUser();
 $flash = flashGet();
 
 $navItems = [
-    'dashboard'    => ['icon' => 'fa-tachometer-alt', 'label' => 'Dashboard',      'href' => BASE_URL . '/dashboard.php',                  'roles' => ['owner','admin','kabeng','mekanik']],
-    'work-orders'  => ['icon' => 'fa-clipboard-list', 'label' => 'Work Order',     'href' => BASE_URL . '/pages/work-orders/index.php',    'roles' => ['owner','admin','kabeng','mekanik']],
-    'bookings'     => ['icon' => 'fa-calendar-alt',   'label' => 'Booking',        'href' => BASE_URL . '/pages/bookings/index.php',       'roles' => ['owner','admin','kabeng']],
-    'customers'    => ['icon' => 'fa-users',           'label' => 'Pelanggan',      'href' => BASE_URL . '/pages/customers/index.php',      'roles' => ['owner','admin','kabeng']],
-    'vehicles'     => ['icon' => 'fa-car',             'label' => 'Kendaraan',      'href' => BASE_URL . '/pages/vehicles/index.php',       'roles' => ['owner','admin','kabeng']],
-    'inventory'    => ['icon' => 'fa-boxes',           'label' => 'Inventori',      'href' => BASE_URL . '/pages/inventory/index.php',      'roles' => ['owner','admin','kabeng']],
-    'services'     => ['icon' => 'fa-tools',           'label' => 'Layanan',        'href' => BASE_URL . '/pages/services/index.php',       'roles' => ['owner','admin','kabeng']],
+    'dashboard'    => ['icon' => 'fa-tachometer-alt', 'label' => 'Dashboard',      'href' => BASE_URL . '/dashboard.php',                  'roles' => ['owner','admin','senior_teknisi','junior_teknisi']],
+    'work-orders'  => ['icon' => 'fa-clipboard-list', 'label' => 'Work Order',     'href' => BASE_URL . '/pages/work-orders/index.php',    'roles' => ['owner','admin','senior_teknisi','junior_teknisi']],
+    'bookings'     => ['icon' => 'fa-calendar-alt',   'label' => 'Booking',        'href' => BASE_URL . '/pages/bookings/index.php',       'roles' => ['owner','admin','senior_teknisi']],
+    'customers'    => ['icon' => 'fa-users',          'label' => 'Pelanggan',      'href' => BASE_URL . '/pages/customers/index.php',      'roles' => ['owner','admin','senior_teknisi']],
+    'vehicles'     => ['icon' => 'fa-car',            'label' => 'Kendaraan',      'href' => BASE_URL . '/pages/vehicles/index.php',       'roles' => ['owner','admin','senior_teknisi']],
+    'inventory'    => ['icon' => 'fa-boxes',          'label' => 'Inventori',      'href' => BASE_URL . '/pages/inventory/index.php',      'roles' => ['owner','admin','senior_teknisi']],
+    'services'     => ['icon' => 'fa-tools',          'label' => 'Layanan',        'href' => BASE_URL . '/pages/services/index.php',       'roles' => ['owner','admin','senior_teknisi']],
     'employees'    => ['icon' => 'fa-user-tie',        'label' => 'Karyawan',       'href' => BASE_URL . '/pages/employees/index.php',      'roles' => ['owner','admin']],
     'reports'      => ['icon' => 'fa-chart-bar',       'label' => 'Laporan',        'href' => BASE_URL . '/pages/reports/index.php',        'roles' => ['owner','admin']],
     'payroll'      => ['icon' => 'fa-money-check-alt',  'label' => 'Penggajian',     'href' => BASE_URL . '/pages/payroll/index.php',         'roles' => ['owner','admin']],

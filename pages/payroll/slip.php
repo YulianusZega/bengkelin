@@ -10,16 +10,16 @@ $db = getDB();
 
 // Load settings
 $cfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN
-    ('service_mechanic_pct','service_owner_pct','kabeng_share_pct','junior_share_pct',
-     'admin_bonus_pct','kabeng_min_guarantee','bengkel_name','bengkel_address','bengkel_phone')")
+    ('service_mechanic_pct','service_owner_pct','senior_share_pct','junior_share_pct',
+     'admin_bonus_pct','senior_min_guarantee','bengkel_name','bengkel_address','bengkel_phone')")
     ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $svcMechPct   = (float)($cfg['service_mechanic_pct'] ?? 60);
 $svcOwnerPct  = (float)($cfg['service_owner_pct']    ?? 40);
-$kabengPct    = (float)($cfg['kabeng_share_pct']     ?? 80);
+$seniorPct    = (float)($cfg['senior_share_pct']     ?? 80);
 $juniorPct    = (float)($cfg['junior_share_pct']     ?? 20);
 $adminBonusPct= (float)($cfg['admin_bonus_pct']      ?? 1);
-$kabengMin    = (float)($cfg['kabeng_min_guarantee'] ?? 0);
+$seniorMin    = (float)($cfg['senior_min_guarantee'] ?? 0);
 
 // Load all salary records for this month
 $records = $db->prepare("
@@ -27,7 +27,7 @@ $records = $db->prepare("
     FROM salary_records sr
     JOIN employees e ON sr.employee_id = e.id
     WHERE sr.period_year=? AND sr.period_month=?
-    ORDER BY FIELD(e.position,'kabeng','mekanik','admin') ASC, e.name ASC
+    ORDER BY FIELD(e.position,'senior_teknisi','junior_teknisi','admin') ASC, e.name ASC
 ");
 $records->execute([$yr, $mo]);
 $records = $records->fetchAll();
@@ -54,7 +54,7 @@ $periodeLabel = date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr));
     .emp-name { font-size:18px; font-weight:700; color:#1a1a2e; margin-bottom:3px; }
     .emp-id { font-size:12px; color:#888; }
     .pos-badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
-    .pos-kabeng { background:#FEF3C7; color:#B45309; }
+    .pos-senior { background:#FEF3C7; color:#B45309; }
     .pos-mekanik { background:#DBEAFE; color:#1D4ED8; }
     .pos-admin   { background:#D1FAE5; color:#065F46; }
     .row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #f3f4f6; font-size:13px; }
@@ -104,7 +104,7 @@ $periodeLabel = date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr));
     <?php foreach ($records as $r):
         $pos = $r['position'];
         $posCls = 'pos-' . $pos;
-        $posLabel = ['kabeng'=>'Kepala Bengkel','mekanik'=>'Junior Mekanik','admin'=>'Administrasi'][$pos] ?? strtoupper($pos);
+        $posLabel = ['senior_teknisi'=>'Senior Teknisi','junior_teknisi'=>'Junior Mekanik','admin'=>'Administrasi'][$pos] ?? strtoupper($pos);
     ?>
     <div class="slip">
       <div class="slip-header">
@@ -141,9 +141,9 @@ $periodeLabel = date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr));
         <?php if ((float)$r['service_bonus'] > 0): ?>
         <div class="row">
           <span class="row-label">Bonus Jasa
-            <?php if ($pos === 'kabeng'): ?>
-              (<?= $svcMechPct ?>% Jasa × <?= $kabengPct ?>%)
-            <?php elseif ($pos === 'mekanik'): ?>
+            <?php if ($pos === 'senior_teknisi'): ?>
+              (<?= $svcMechPct ?>% Jasa × <?= $seniorPct ?>%)
+            <?php elseif ($pos === 'junior_teknisi'): ?>
               (<?= $svcMechPct ?>% Jasa × <?= $juniorPct ?>%)
             <?php endif; ?>
           </span>

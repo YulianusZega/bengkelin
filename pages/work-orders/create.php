@@ -27,11 +27,11 @@ if ($bookingId) {
     $s = $db->prepare("SELECT * FROM bookings WHERE id=?"); $s->execute([$bookingId]); $preBooking = $s->fetch();
 }
 
-$kabengList   = $db->query("SELECT id,name,specialization FROM employees WHERE position='kabeng' AND status='active' ORDER BY name")->fetchAll();
-$juniorList   = $db->query("SELECT id,name,specialization FROM employees WHERE position='mekanik' AND status='active' ORDER BY name")->fetchAll();
-$revCfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN ('service_mechanic_pct','kabeng_share_pct','junior_share_pct')")->fetchAll(PDO::FETCH_KEY_PAIR);
+$seniorList   = $db->query("SELECT id,name,specialization FROM employees WHERE position='senior_teknisi' AND status='active' ORDER BY name")->fetchAll();
+$juniorList   = $db->query("SELECT id,name,specialization FROM employees WHERE position='junior_teknisi' AND status='active' ORDER BY name")->fetchAll();
+$revCfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN ('service_mechanic_pct','senior_share_pct','junior_share_pct')")->fetchAll(PDO::FETCH_KEY_PAIR);
 $svcMechPct = (float)($revCfg['service_mechanic_pct'] ?? 60);
-$kabengPct  = (float)($revCfg['kabeng_share_pct']     ?? 80);
+$seniorPct  = (float)($revCfg['senior_share_pct']     ?? 80);
 $juniorPct  = (float)($revCfg['junior_share_pct']     ?? 20);
 $serviceCategories= $db->query("SELECT sc.*,GROUP_CONCAT(s.id,'::',s.name,'::',s.price_car,'::',s.price_motorcycle ORDER BY s.name SEPARATOR '||') as services FROM service_categories sc LEFT JOIN services s ON sc.id=s.category_id AND s.status='active' GROUP BY sc.id ORDER BY sc.name")->fetchAll();
 $parts            = $db->query("SELECT id,code,name,sell_price,stock,unit FROM parts WHERE stock>0 ORDER BY name")->fetchAll();
@@ -187,35 +187,35 @@ include __DIR__ . '/../../includes/header.php';
             <i class="fas fa-hard-hat"></i> Penugasan Teknisi
           </div>
 
-          <!-- KABENG: dropdown hanya kabeng -->
+          <!-- KABENG: dropdown hanya senior -->
           <div class="form-group">
             <label class="form-label">
               <span style="background:#FEF3C7;color:#B45309;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700">KABENG</span>
-              Kepala Bengkel
+              Senior Teknisi
             </label>
             <select name="mechanic_id" id="mechanic_id" class="form-control" onchange="updateRevenuePreview()">
               <option value="">— Belum ditugaskan —</option>
-              <?php foreach ($kabengList as $m): ?>
+              <?php foreach ($seniorList as $m): ?>
               <option value="<?= $m['id'] ?>">
                 👑 <?= htmlspecialchars($m['name']) ?><?= $m['specialization'] ? ' (' . $m['specialization'] . ')' : '' ?>
               </option>
               <?php endforeach; ?>
-              <?php if (empty($kabengList)): ?>
-              <option disabled style="color:#999">Belum ada Kepala Bengkel aktif</option>
+              <?php if (empty($seniorList)): ?>
+              <option disabled style="color:#999">Belum ada Senior Teknisi aktif</option>
               <?php endif; ?>
             </select>
             <small style="color:var(--text-muted);font-size:12px">Pimpinan pengerjaan — On-call, tanpa gaji pokok</small>
           </div>
 
-          <!-- JUNIOR: checkbox multi-select, hanya mekanik -->
+          <!-- JUNIOR: checkbox multi-select, hanya teknisi -->
           <div class="form-group" style="margin-top:4px">
             <label class="form-label">
               <span style="background:#DBEAFE;color:#1D4ED8;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700">JUNIOR</span>
-              Mekanik Asisten
+              Teknisi Asisten
               <span style="color:var(--text-muted);font-weight:400">(opsional, bisa lebih dari 1)</span>
             </label>
             <?php if (empty($juniorList)): ?>
-            <div style="font-size:13px;color:var(--text-muted);padding:10px;background:#f9fafb;border-radius:8px">Belum ada Junior Mekanik aktif</div>
+            <div style="font-size:13px;color:var(--text-muted);padding:10px;background:#f9fafb;border-radius:8px">Belum ada Junior Teknisi aktif</div>
             <?php else: ?>
             <div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:#f9fafb;border-radius:8px" id="junior-checkboxes">
               <?php foreach ($juniorList as $m): ?>
@@ -249,7 +249,7 @@ include __DIR__ . '/../../includes/header.php';
         </div>
         <div class="form-group">
           <label class="form-label">Catatan Internal</label>
-          <textarea name="notes" class="form-control" rows="2" placeholder="Catatan untuk mekanik (opsional)"></textarea>
+          <textarea name="notes" class="form-control" rows="2" placeholder="Catatan untuk teknisi (opsional)"></textarea>
         </div>
       </div>
     </div>
@@ -477,7 +477,7 @@ function onVehicleChange(id) {
 }
 // ── REVENUE PREVIEW (Multi-Asisten) ──────────────────────
 const MECH_PCT   = <?= $svcMechPct ?>;
-const KABENG_PCT = <?= $kabengPct ?>;
+const SENIOR_PCT = <?= $seniorPct ?>;
 const JUNIOR_PCT = <?= $juniorPct ?>;
 const OWNER_PCT  = 100 - MECH_PCT;
 
@@ -517,7 +517,7 @@ function updateRevenuePreview() {
   });
   if (svcTotal <= 0) { if(prevBox) prevBox.style.display='none'; return; }
 
-  const mechName   = mecSel.selectedOptions[0]?.text?.replace(/^[\u{1F451}\s]+/u,'').trim() || 'Kepala Bengkel';
+  const mechName   = mecSel.selectedOptions[0]?.text?.replace(/^[\u{1F451}\s]+/u,'').trim() || 'Senior Teknisi';
   const juniorNames= getCheckedJuniors();
   const juniorCount= juniorNames.length;
 
@@ -527,18 +527,18 @@ function updateRevenuePreview() {
   let rows = [];
 
   if (juniorCount === 0) {
-    // Solo: Kabeng/mekanik dapat 100% bagian mekanik
+    // Solo: Senior Teknisi/teknisi dapat 100% bagian teknisi
     rows = [
       { label: mechName + ' (Solo)', pct: MECH_PCT+'%', val: mechShare, color:'#F59E0B' },
       { label: 'Owner (Jasa)',        pct: OWNER_PCT+'%', val: ownerShare, color:'#10B981' },
     ];
   } else {
-    // Duo/Trio: Kabeng dapat kabengPct%, Junior dibagi rata
-    const kabengBonus = mechShare * KABENG_PCT / 100;
+    // Duo/Trio: Senior Teknisi dapat seniorPct%, Junior dibagi rata
+    const seniorBonus = mechShare * SENIOR_PCT / 100;
     const totalJunior = mechShare * JUNIOR_PCT / 100;
     const perJunior   = totalJunior / juniorCount;
 
-    rows.push({ label: mechName + ' (Kabeng)', pct: MECH_PCT+'%×'+KABENG_PCT+'%', val: kabengBonus, color:'#F59E0B' });
+    rows.push({ label: mechName + ' (Senior Teknisi)', pct: MECH_PCT+'%×'+SENIOR_PCT+'%', val: seniorBonus, color:'#F59E0B' });
     juniorNames.forEach((n, i) => {
       rows.push({
         label: n.replace(/\s*\(.*\)/, '').trim() + ' (Asisten)',

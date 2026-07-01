@@ -31,8 +31,8 @@ include __DIR__ . '/../../includes/header.php';
 <!-- EMPLOYEE CARDS -->
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px">
   <?php
-  $posColors = ['owner'=>'var(--danger)','admin'=>'var(--info)','kabeng'=>'var(--warning)','mekanik'=>'var(--success)'];
-  $posLabels = ['owner'=>'Owner','admin'=>'Admin','kabeng'=>'Kepala Bengkel','mekanik'=>'Mekanik'];
+  $posColors = ['owner'=>'var(--danger)','admin'=>'var(--info)','senior_teknisi'=>'var(--warning)','junior_teknisi'=>'var(--success)'];
+  $posLabels = ['owner'=>'Owner','admin'=>'Admin','senior_teknisi'=>'Senior Teknisi','junior_teknisi'=>'Junior Teknisi'];
   foreach ($employees as $emp):
     $col = $posColors[$emp['position']] ?? 'var(--primary)';
   ?>
@@ -98,9 +98,10 @@ include __DIR__ . '/../../includes/header.php';
           <div class="form-group">
             <label class="form-label">Jabatan <span class="req">*</span></label>
             <select name="position" id="emp-pos" class="form-control" required>
-              <option value="mekanik">Mekanik</option>
-              <option value="kabeng">Kepala Bengkel</option>
+              <option value="owner">Owner</option>
               <option value="admin">Admin</option>
+              <option value="senior_teknisi">Senior Teknisi</option>
+              <option value="junior_teknisi">Junior Teknisi</option>
             </select>
           </div>
           <div class="form-group">

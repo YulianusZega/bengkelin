@@ -24,9 +24,9 @@ if ($search) {
 if ($status) { $where[] = "wo.status = ?"; $params[] = $status; }
 if ($date)   { $where[] = "DATE(wo.created_at) = ?"; $params[] = $date; }
 
-// Role filter: mekanik hanya lihat WO-nya sendiri
+// Role filter: teknisi hanya lihat WO-nya sendiri
 $user = currentUser();
-if ($user['role'] === 'mekanik') {
+if ($user['role'] === 'junior_teknisi') {
     $empStmt = $db->prepare("SELECT id FROM employees WHERE user_id=?");
     $empStmt->execute([$user['id']]);
     $emp = $empStmt->fetch();
@@ -133,7 +133,7 @@ include __DIR__ . '/../../includes/header.php';
           <th>No. WO</th>
           <th>Pelanggan</th>
           <th>Kendaraan</th>
-          <th>Mekanik</th>
+          <th>Teknisi</th>
           <th>Status</th>
           <th>Pembayaran</th>
           <th>Total</th>

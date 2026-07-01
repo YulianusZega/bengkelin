@@ -4,7 +4,7 @@
 // ============================================================
 require_once __DIR__ . '/../../includes/auth.php';
 requireLogin();
-requireRole('owner','admin','kabeng');
+requireRole('owner','admin','senior_teknisi');
 
 $db = getDB();
 

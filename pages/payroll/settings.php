@@ -7,33 +7,33 @@ $title      = 'Pengaturan Bagi Hasil';
 $activePage = 'payroll';
 $db         = getDB();
 
-$keys = ['service_mechanic_pct','service_owner_pct','kabeng_share_pct','junior_share_pct',
-         'parts_owner_pct','admin_bonus_pct','kabeng_min_guarantee'];
+$keys = ['service_mechanic_pct','service_owner_pct','senior_share_pct','junior_share_pct',
+         'parts_owner_pct','admin_bonus_pct','senior_min_guarantee'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf($_POST['csrf_token'] ?? '')) {
     $mechPct  = max(0, min(100, (float)($_POST['service_mechanic_pct'] ?? 60)));
     $ownerPct = 100 - $mechPct;
-    $kabPct   = max(0, min(100, (float)($_POST['kabeng_share_pct'] ?? 80)));
+    $kabPct   = max(0, min(100, (float)($_POST['senior_share_pct'] ?? 80)));
     $junPct   = 100 - $kabPct;
 
     $stmt = $db->prepare("INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON DUPLICATE KEY UPDATE setting_value=?");
     $stmt->execute(['service_mechanic_pct', $mechPct, $mechPct]);
     $stmt->execute(['service_owner_pct',    $ownerPct, $ownerPct]);
-    $stmt->execute(['kabeng_share_pct',     $kabPct, $kabPct]);
+    $stmt->execute(['senior_share_pct',     $kabPct, $kabPct]);
     $stmt->execute(['junior_share_pct',     $junPct, $junPct]);
     $stmt->execute(['parts_owner_pct',      '100', '100']);
     $ab = max(0, min(10, (float)($_POST['admin_bonus_pct'] ?? 1)));
     $stmt->execute(['admin_bonus_pct',      $ab, $ab]);
-    $km = max(0, (float)($_POST['kabeng_min_guarantee'] ?? 0));
-    $stmt->execute(['kabeng_min_guarantee', $km, $km]);
+    $km = max(0, (float)($_POST['senior_min_guarantee'] ?? 0));
+    $stmt->execute(['senior_min_guarantee', $km, $km]);
 
     flashSet('success', 'Pengaturan bagi hasil berhasil disimpan!');
     header('Location: '.BASE_URL.'/pages/payroll/settings.php'); exit;
 }
 
 $cfg = $db->query("SELECT setting_key,setting_value FROM settings WHERE setting_key IN
-    ('service_mechanic_pct','service_owner_pct','kabeng_share_pct','junior_share_pct',
-     'parts_owner_pct','admin_bonus_pct','kabeng_min_guarantee')")->fetchAll(PDO::FETCH_KEY_PAIR);
+    ('service_mechanic_pct','service_owner_pct','senior_share_pct','junior_share_pct',
+     'parts_owner_pct','admin_bonus_pct','senior_min_guarantee')")->fetchAll(PDO::FETCH_KEY_PAIR);
 
 function cfgVal(array $c, string $k, $def): string { return htmlspecialchars((string)($c[$k] ?? $def)); }
 
@@ -129,27 +129,27 @@ include __DIR__ . '/../../includes/header.php';
       <div class="card-body">
         <div class="alert alert-info" style="margin-bottom:20px">
           <i class="fas fa-info-circle"></i>
-          Dari <strong>total bagian mekanik</strong>, dibagi lagi antara Kepala Bengkel dan Junior Mekanik berdasarkan WO masing-masing.
+          Dari <strong>total bagian mekanik</strong>, dibagi lagi antara Senior Teknisi dan Junior Mekanik berdasarkan WO masing-masing.
         </div>
 
-        <!-- Slider: Kabeng vs Junior -->
+        <!-- Slider: Senior Teknisi vs Junior -->
         <div class="form-group">
-          <label class="form-label">Porsi Kepala Bengkel (dari bagian mekanik)</label>
+          <label class="form-label">Porsi Senior Teknisi (dari bagian mekanik)</label>
           <div style="display:flex;align-items:center;gap:12px">
-            <input type="range" id="kabengSlider" min="0" max="100" step="5"
-                   value="<?= cfgVal($cfg,'kabeng_share_pct',80) ?>"
+            <input type="range" id="seniorSlider" min="0" max="100" step="5"
+                   value="<?= cfgVal($cfg,'senior_share_pct',80) ?>"
                    style="flex:1;accent-color:var(--warning)"
-                   oninput="updateKabeng(this.value)">
-            <span id="kabengVal" style="font-size:20px;font-weight:800;color:var(--warning);min-width:42px;text-align:right">
-              <?= cfgVal($cfg,'kabeng_share_pct',80) ?>%
+                   oninput="updateSenior Teknisi(this.value)">
+            <span id="seniorVal" style="font-size:20px;font-weight:800;color:var(--warning);min-width:42px;text-align:right">
+              <?= cfgVal($cfg,'senior_share_pct',80) ?>%
             </span>
           </div>
-          <input type="hidden" name="kabeng_share_pct" id="kabeng_share_pct" value="<?= cfgVal($cfg,'kabeng_share_pct',80) ?>">
+          <input type="hidden" name="senior_share_pct" id="senior_share_pct" value="<?= cfgVal($cfg,'senior_share_pct',80) ?>">
         </div>
 
         <div style="border-radius:12px;overflow:hidden;height:36px;display:flex;margin:12px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)">
-          <div id="barKabeng" style="background:linear-gradient(90deg,#F59E0B,#fbbf24);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;transition:width .3s;width:<?= cfgVal($cfg,'kabeng_share_pct',80) ?>%">
-            Kabeng
+          <div id="barSenior Teknisi" style="background:linear-gradient(90deg,#F59E0B,#fbbf24);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;transition:width .3s;width:<?= cfgVal($cfg,'senior_share_pct',80) ?>%">
+            Senior Teknisi
           </div>
           <div id="barJunior" style="background:linear-gradient(90deg,#3B82F6,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;transition:width .3s;width:<?= cfgVal($cfg,'junior_share_pct',20) ?>%">
             Junior
@@ -157,8 +157,8 @@ include __DIR__ . '/../../includes/header.php';
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:16px">
           <div style="text-align:center;flex:1">
-            <div id="kabengPct2" style="font-weight:700;color:var(--warning);font-size:18px"><?= cfgVal($cfg,'kabeng_share_pct',80) ?>%</div>
-            <div style="font-size:12px;color:var(--text-muted)">Kepala Bengkel (On-Call)</div>
+            <div id="seniorPct2" style="font-weight:700;color:var(--warning);font-size:18px"><?= cfgVal($cfg,'senior_share_pct',80) ?>%</div>
+            <div style="font-size:12px;color:var(--text-muted)">Senior Teknisi (On-Call)</div>
           </div>
           <div style="text-align:center;flex:1">
             <div id="juniorPct" style="font-weight:700;color:var(--info);font-size:18px"><?= cfgVal($cfg,'junior_share_pct',20) ?>%</div>
@@ -167,13 +167,13 @@ include __DIR__ . '/../../includes/header.php';
         </div>
 
         <div class="form-group">
-          <label class="form-label">Minimum Garantee Kepala Bengkel / Bulan (Rp)</label>
+          <label class="form-label">Minimum Garantee Senior Teknisi / Bulan (Rp)</label>
           <div class="input-group">
             <span class="input-addon">Rp</span>
-            <input type="number" name="kabeng_min_guarantee" class="form-control" min="0" step="50000"
-                   value="<?= cfgVal($cfg,'kabeng_min_guarantee',0) ?>" placeholder="0 = tidak ada minimum">
+            <input type="number" name="senior_min_guarantee" class="form-control" min="0" step="50000"
+                   value="<?= cfgVal($cfg,'senior_min_guarantee',0) ?>" placeholder="0 = tidak ada minimum">
           </div>
-          <small style="color:var(--text-muted);font-size:12px">Jika bonus jasa Kabeng kurang dari nilai ini, akan otomatis dinaikkan ke nilai ini</small>
+          <small style="color:var(--text-muted);font-size:12px">Jika bonus jasa Senior Teknisi kurang dari nilai ini, akan otomatis dinaikkan ke nilai ini</small>
         </div>
       </div>
     </div>
@@ -251,13 +251,13 @@ function updateSplit(v) {
   document.getElementById('service_mechanic_pct').value = v;
   simulate();
 }
-function updateKabeng(v) {
-  document.getElementById('kabengVal').textContent = v + '%';
-  document.getElementById('kabengPct2').textContent = v + '%';
+function updateSenior Teknisi(v) {
+  document.getElementById('seniorVal').textContent = v + '%';
+  document.getElementById('seniorPct2').textContent = v + '%';
   document.getElementById('juniorPct').textContent = (100-v) + '%';
-  document.getElementById('barKabeng').style.width = v + '%';
+  document.getElementById('barSenior Teknisi').style.width = v + '%';
   document.getElementById('barJunior').style.width = (100-v) + '%';
-  document.getElementById('kabeng_share_pct').value = v;
+  document.getElementById('senior_share_pct').value = v;
   simulate();
 }
 function fmtRp(n) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n)); }
@@ -265,13 +265,13 @@ function simulate() {
   const jasa  = parseFloat(document.getElementById('simJasa').value) || 0;
   const part  = parseFloat(document.getElementById('simPart').value) || 0;
   const mPct  = parseFloat(document.getElementById('service_mechanic_pct').value) || 60;
-  const kPct  = parseFloat(document.getElementById('kabeng_share_pct').value) || 80;
+  const kPct  = parseFloat(document.getElementById('senior_share_pct').value) || 80;
   const jPct  = 100 - kPct;
   const oPct  = 100 - mPct;
 
   const mechTotal  = jasa * mPct / 100;
   const ownerJasa  = jasa * oPct / 100;
-  const kabengBonus = mechTotal * kPct / 100;
+  const seniorBonus = mechTotal * kPct / 100;
   const juniorBonus = mechTotal * jPct / 100;
 
   document.getElementById('simResult').innerHTML = `
@@ -286,8 +286,8 @@ function simulate() {
       <div style="font-size:11px;color:var(--text-muted)">100% part</div>
     </div>
     <div style="background:rgba(245,158,11,.08);border-radius:10px;padding:14px;text-align:center">
-      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">Kepala Bengkel</div>
-      <div style="font-size:18px;font-weight:800;color:var(--warning)">${fmtRp(kabengBonus)}</div>
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">Senior Teknisi</div>
+      <div style="font-size:18px;font-weight:800;color:var(--warning)">${fmtRp(seniorBonus)}</div>
       <div style="font-size:11px;color:var(--text-muted)">${kPct}% dari Rp${fmtRp(mechTotal).replace('Rp ','')}</div>
     </div>
     <div style="background:rgba(59,130,246,.08);border-radius:10px;padding:14px;text-align:center">

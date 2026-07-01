@@ -11,11 +11,11 @@ USE `bengkelin`;
 INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('service_mechanic_pct',  '60'),   -- % jasa untuk total mekanik
 ('service_owner_pct',     '40'),   -- % jasa untuk owner
-('kabeng_share_pct',      '80'),   -- % dari bagian mekanik → Kepala Bengkel
+('senior_share_pct',      '80'),   -- % dari bagian mekanik → Senior Teknisi
 ('junior_share_pct',      '20'),   -- % dari bagian mekanik → Junior Mekanik
 ('parts_owner_pct',       '100'),  -- % spare part → owner
 ('admin_bonus_pct',       '1'),    -- % dari total omset bulanan → admin bonus
-('kabeng_min_guarantee',  '0')     -- Min retensi bulanan Kepala Bengkel (Rp)
+('senior_min_guarantee',  '0')     -- Min retensi bulanan Senior Teknisi (Rp)
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
 
 -- --------------------------------------------------------
@@ -46,10 +46,10 @@ CREATE TABLE IF NOT EXISTS `salary_records` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- Update employees: update kabeng to no base salary (on-call model)
+-- Update employees: update senior to no base salary (on-call model)
 -- (Adjust accordingly — uncomment if desired)
 -- --------------------------------------------------------
--- UPDATE `employees` SET `salary` = 0.00 WHERE `position` = 'kabeng';
+-- UPDATE `employees` SET `salary` = 0.00 WHERE `position` = 'senior_teknisi';
 
 -- --------------------------------------------------------
 -- View: v_monthly_mechanic_revenue
@@ -75,5 +75,5 @@ LEFT JOIN (
 ) wo ON e.id = wo.emp_id 
     AND wo.payment_status = 'paid' 
     AND wo.status IN ('done', 'delivered')
-WHERE e.position IN ('kabeng', 'mekanik')
+WHERE e.position IN ('senior_teknisi', 'junior_teknisi')
 GROUP BY e.id, e.name, e.position, e.salary, YEAR(wo.updated_at), MONTH(wo.updated_at);

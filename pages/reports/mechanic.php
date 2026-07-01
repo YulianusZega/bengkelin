@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/auth.php';
 requireLogin();
 requireRole('owner','admin');
 
-$title      = 'Performa Mekanik';
+$title      = 'Performa Teknisi';
 $activePage = 'reports';
 $db         = getDB();
 
@@ -34,7 +34,7 @@ $mechanics = $db->prepare("
         JOIN wo_assistants wa ON w.id = wa.wo_id
     ) wo ON (e.id = wo.mechanic_id OR e.id = wo.assistant_id) 
         AND YEAR(wo.created_at)=? AND MONTH(wo.created_at)=?
-    WHERE e.position IN ('mekanik','kabeng') AND e.status = 'active'
+    WHERE e.position IN ('junior_teknisi','senior_teknisi') AND e.status = 'active'
     GROUP BY e.id, e.name, e.specialization, e.employee_id, e.commission_rate
     ORDER BY total_wo DESC, revenue DESC
 ");
@@ -52,8 +52,8 @@ include __DIR__ . '/../../includes/header.php';
 
 <div class="page-header">
   <div class="page-header-left">
-    <h1>Performa Mekanik</h1>
-    <p>Analitik kinerja mekanik — <?= date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr)) ?></p>
+    <h1>Performa Teknisi</h1>
+    <p>Analitik kinerja teknisi — <?= date('F Y', mktime(0,0,0,(int)$mo,1,(int)$yr)) ?></p>
   </div>
   <div class="page-header-right">
     <a href="<?= BASE_URL ?>/pages/reports/export.php?type=mechanic&month=<?= $month ?>" class="btn btn-outline"><i class="fas fa-file-csv"></i> Export CSV</a>
@@ -69,7 +69,7 @@ include __DIR__ . '/../../includes/header.php';
 <div class="stats-grid mb-24" style="grid-template-columns:repeat(4,1fr)">
   <div class="stat-card">
     <div class="stat-icon blue"><i class="fas fa-users"></i></div>
-    <div class="stat-info"><div class="stat-label">Total Mekanik Aktif</div><div class="stat-value"><?= count($mechanics) ?></div></div>
+    <div class="stat-info"><div class="stat-label">Total Teknisi Aktif</div><div class="stat-value"><?= count($mechanics) ?></div></div>
   </div>
   <div class="stat-card">
     <div class="stat-icon orange"><i class="fas fa-clipboard-list"></i></div>
@@ -77,22 +77,22 @@ include __DIR__ . '/../../includes/header.php';
   </div>
   <div class="stat-card">
     <div class="stat-icon green"><i class="fas fa-money-bill-wave"></i></div>
-    <div class="stat-info"><div class="stat-label">Revenue dari Mekanik</div><div class="stat-value" style="font-size:16px"><?= formatRupiah($totalRev) ?></div></div>
+    <div class="stat-info"><div class="stat-label">Revenue dari Teknisi</div><div class="stat-value" style="font-size:16px"><?= formatRupiah($totalRev) ?></div></div>
   </div>
   <div class="stat-card">
     <div class="stat-icon purple"><i class="fas fa-trophy"></i></div>
-    <div class="stat-info"><div class="stat-label">Mekanik Terbaik</div><div class="stat-value" style="font-size:16px"><?= htmlspecialchars($bestMech) ?></div></div>
+    <div class="stat-info"><div class="stat-label">Teknisi Terbaik</div><div class="stat-value" style="font-size:16px"><?= htmlspecialchars($bestMech) ?></div></div>
   </div>
 </div>
 
 <!-- MECHANIC LEADERBOARD -->
 <div class="card mb-24">
   <div class="card-header">
-    <div class="card-header-title"><i class="fas fa-trophy" style="color:var(--warning);margin-right:8px"></i>Leaderboard Mekanik</div>
+    <div class="card-header-title"><i class="fas fa-trophy" style="color:var(--warning);margin-right:8px"></i>Leaderboard Teknisi</div>
   </div>
   <div class="card-body" style="padding:20px">
     <?php if (empty($mechanics)): ?>
-    <div class="empty-state"><i class="fas fa-users"></i><h3>Belum ada data mekanik</h3></div>
+    <div class="empty-state"><i class="fas fa-users"></i><h3>Belum ada data teknisi</h3></div>
     <?php else: ?>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
       <?php foreach ($mechanics as $i => $m):
@@ -158,7 +158,7 @@ include __DIR__ . '/../../includes/header.php';
 <!-- CHART -->
 <div class="card">
   <div class="card-header">
-    <div class="card-header-title"><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px"></i>Perbandingan WO per Mekanik</div>
+    <div class="card-header-title"><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px"></i>Perbandingan WO per Teknisi</div>
   </div>
   <div class="card-body">
     <canvas id="mechChart" height="100"></canvas>
