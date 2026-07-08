@@ -157,15 +157,14 @@ if ($type === 'inventory') {
 }
 
 if ($type === 'services') {
-    $filename = "Layanan_" . date('dmY') . ".xls";
+    $filename = "Master_Layanan_" . date('dmY') . ".xls";
 
     $rows = $db->query("
-        SELECT s.service_name, s.price, COUNT(*) AS used_count, SUM(s.price) AS total_revenue,
-               MAX(wo.created_at) AS last_used
-        FROM wo_services s
-        JOIN work_orders wo ON s.wo_id = wo.id
-        GROUP BY s.service_name
-        ORDER BY used_count DESC
+        SELECT s.name, s.description, sc.name AS category_name, 
+               s.price_car, s.price_motorcycle, s.status, s.duration_hours
+        FROM services s
+        LEFT JOIN service_categories sc ON s.category_id = sc.id
+        ORDER BY sc.name ASC, s.name ASC
     ")->fetchAll();
 
     header("Content-Type: application/vnd.ms-excel; charset=utf-8");
@@ -177,19 +176,20 @@ if ($type === 'services') {
     echo '<head><meta charset="UTF-8"></head><body>';
     echo '<table border="1">';
     echo '<tr style="background-color:#FF6B2B;color:white;font-weight:bold;">
-            <th>No.</th><th>Nama Layanan</th><th>Digunakan</th><th>Harga (Biaya) Terakhir</th><th>Total Pendapatan</th><th>Terakhir Digunakan</th>
+            <th>No.</th><th>Kategori</th><th>Nama Layanan</th><th>Deskripsi</th><th>Biaya Mobil</th><th>Biaya Motor</th><th>Estimasi Waktu (Jam)</th><th>Status</th>
           </tr>';
     
     $i = 1;
     foreach ($rows as $r) {
-        $lastUsed = $r['last_used'] ? date('d/m/Y', strtotime($r['last_used'])) : '-';
         echo '<tr>';
         echo '<td>' . $i++ . '</td>';
-        echo '<td>' . htmlspecialchars($r['service_name']) . '</td>';
-        echo '<td>' . $r['used_count'] . '</td>';
-        echo '<td>' . $r['price'] . '</td>';
-        echo '<td>' . $r['total_revenue'] . '</td>';
-        echo '<td>' . $lastUsed . '</td>';
+        echo '<td>' . htmlspecialchars($r['category_name'] ?? '-') . '</td>';
+        echo '<td>' . htmlspecialchars($r['name']) . '</td>';
+        echo '<td>' . htmlspecialchars($r['description'] ?? '-') . '</td>';
+        echo '<td>' . $r['price_car'] . '</td>';
+        echo '<td>' . $r['price_motorcycle'] . '</td>';
+        echo '<td>' . $r['duration_hours'] . '</td>';
+        echo '<td>' . ucfirst($r['status']) . '</td>';
         echo '</tr>';
     }
     echo '</table></body></html>';
