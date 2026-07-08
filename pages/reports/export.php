@@ -156,6 +156,46 @@ if ($type === 'inventory') {
     exit;
 }
 
+if ($type === 'services') {
+    $filename = "Layanan_" . date('dmY') . ".xls";
+
+    $rows = $db->query("
+        SELECT s.service_name, s.price, COUNT(*) AS used_count, SUM(s.price) AS total_revenue,
+               MAX(wo.created_at) AS last_used
+        FROM wo_services s
+        JOIN work_orders wo ON s.wo_id = wo.id
+        GROUP BY s.service_name
+        ORDER BY used_count DESC
+    ")->fetchAll();
+
+    header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+    header("Content-Disposition: attachment; filename={$filename}");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+    echo '<head><meta charset="UTF-8"></head><body>';
+    echo '<table border="1">';
+    echo '<tr style="background-color:#FF6B2B;color:white;font-weight:bold;">
+            <th>No.</th><th>Nama Layanan</th><th>Digunakan</th><th>Harga (Biaya) Terakhir</th><th>Total Pendapatan</th><th>Terakhir Digunakan</th>
+          </tr>';
+    
+    $i = 1;
+    foreach ($rows as $r) {
+        $lastUsed = $r['last_used'] ? date('d/m/Y', strtotime($r['last_used'])) : '-';
+        echo '<tr>';
+        echo '<td>' . $i++ . '</td>';
+        echo '<td>' . htmlspecialchars($r['service_name']) . '</td>';
+        echo '<td>' . $r['used_count'] . '</td>';
+        echo '<td>' . $r['price'] . '</td>';
+        echo '<td>' . $r['total_revenue'] . '</td>';
+        echo '<td>' . $lastUsed . '</td>';
+        echo '</tr>';
+    }
+    echo '</table></body></html>';
+    exit;
+}
+
 // Fallback
 header('Location: ' . BASE_URL . '/pages/reports/index.php');
 exit;

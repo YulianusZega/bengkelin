@@ -100,8 +100,9 @@ include __DIR__ . '/../../includes/header.php';
 
 <!-- TOP SERVICES TABLE -->
 <div class="card">
-  <div class="card-header">
+  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div class="card-header-title"><i class="fas fa-star" style="color:var(--warning);margin-right:8px"></i>Layanan yang Sering Digunakan <span style="color:var(--text-muted);font-weight:400;font-size:13px">(<?= count($services) ?> jenis)</span></div>
+    <a href="<?= BASE_URL ?>/pages/reports/export.php?type=services" class="btn btn-outline btn-sm" style="color:#10B981;border-color:#10B981"><i class="fas fa-file-excel"></i> Export Excel</a>
   </div>
   <div class="table-responsive">
     <table class="table">
