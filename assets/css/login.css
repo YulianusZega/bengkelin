@@ -34,7 +34,7 @@ body {
 .login-left {
   flex: 1.2;
   position: relative;
-  background-image: url('../img/bengkel_bg.jpg');
+  background-image: url('../img/bengkel_bg.png');
   background-size: cover;
   background-position: center;
   display: flex;
